@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Rate {{ listing.title }}{% endblock %}
+
+{% block content %}
+<h1>Rate {{ listing.title }}</h1>
+<p>Rate this listing:</p>
+
+{% if form.errors %}
+    <div class="alert alert-danger">
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<form id="rating-form" method="post" action="{% url 'rate_listing' listing.id %}">
+    {% csrf_token %}
+    <div class="star-rating">
+        {% for value in form.rating.field.choices %}
+            <input type="radio" id="star{{ value.0 }}" name="rating" value="{{ value.0 }}" {% if form.rating.value|stringformat:"s" == value.0|stringformat:"s" %}checked{% endif %} />
+            <label for="star{{ value.0 }}" title="{{ value.1 }} stars">★</label>
+        {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Rating</button>
+</form>
+
+<p><a href="{% url 'home' %}">Back to Home</a></p>
+
+<!-- JavaScript for handling AJAX submission -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingForm = document.getElementById('rating-form');
+
+    if (ratingForm) {
+        ratingForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(ratingForm);
+            fetch(ratingForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken') // Get CSRF token
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Rating submitted successfully!');
+                    // Optionally, update UI with new rating or feedback
+                    // For example, you might want to update the rating display or hide the form
+                } else {
+                    alert('Error: ' + (data.errors ? JSON.stringify(data.errors) : 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An unexpected error occurred.');
+            });
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+
+<!-- CSS for star rating -->
+<style>
+.star-rating {
+    direction: rtl;
+    display: inline-block;
+    padding: 20px;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    font-size: 2em;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.star-rating input[type="radio"]:checked ~ label {
+    color: #f5b301;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffca08;
+}
+</style>
+
+{% endblock %}

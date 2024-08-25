@@ -1,0 +1,40 @@
+{% extends 'listings/base_generic.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Chat with {{ recipient.username }}</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="chat-box">
+                {% for message in messages %}
+                <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
+                    <div class="message-avatar">
+                        <img src="{{ message.sender.profile_picture.url }}" alt="{{ message.sender.username }}" class="avatar">
+                    </div>
+                    <div class="message-content">
+                        <strong>{{ message.sender.username }}</strong>
+                        <p>{{ message.content }}</p>
+                    </div>
+                    <small class="text-muted">{{ message.sent_at|date:"d M Y H:i" }}</small>
+                </div>
+                {% empty %}
+                <p>No messages in this chat.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'chat_view' recipient_id=recipient.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'styles/chat.css' %}">
+{% endblock %}

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}"> <!-- Подключение стилей -->
+    <style>
+        /* Основные стили для страницы регистрации */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .top-bar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s, transform 0.3s;
+            font-size: 14px;
+        }
+
+        .top-bar a:hover {
+            color: #ffd700;
+            transform: scale(1.05);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 80px auto; /* Добавляем отступ сверху для видимости фиксированного заголовка */
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group p {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .form-group input[type="checkbox"] + label {
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'register' %}">Register</a>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'add_listing' %}">Add Listing</a>
+            <a href="{% url 'bookings' %}">My Bookings</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Register</h1>
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_username">Username:</label>
+                <input type="text" name="username" id="id_username" maxlength="150" required>
+                <p>Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="id_email">Email:</label>
+                <input type="email" name="email" id="id_email" required>
+                <p>Enter a valid email address.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password1">Password:</label>
+                <input type="password" name="password1" id="id_password1" required>
+                <p>Your password can’t be too similar to your other personal information.<br>
+                Your password must contain at least 8 characters.<br>
+                Your password can’t be a commonly used password.<br>
+                Your password can’t be entirely numeric.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password2">Password confirmation:</label>
+                <input type="password" name="password2" id="id_password2" required>
+                <p>Enter the same password as before, for verification.</p>
+            </div>
+
+            <div class="form-group">
+                <input type="checkbox" name="is_active" id="id_is_active">
+                <label for="id_is_active">Enable password-based authentication</label>
+                <p>Whether the user will be able to authenticate using a password or not. If disabled, they may still be able to authenticate using other backends, such as Single Sign-On or LDAP.</p>
+            </div>
+
+            <input type="submit" value="Register">
+        </form>
+    </div>
+</body>
+</html>

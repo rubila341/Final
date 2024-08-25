@@ -1,0 +1,115 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="mb-4">Chat with {{ recipient.username }}</h1>
+
+    <!-- Display any success or error messages -->
+    {% if form.errors %}
+      <div class="alert alert-danger">
+        <ul>
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% elif success %}
+      <div class="alert alert-success">
+        Your message has been sent successfully!
+      </div>
+    {% endif %}
+
+    <!-- Message History -->
+    <div class="message-history">
+      {% for message in messages %}
+        <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+          <p class="message-content">{{ message.content }}</p>
+          {% if message.file %}
+            <a href="{{ message.file.url }}" class="message-file" target="_blank">View File</a>
+          {% endif %}
+          <p class="message-timestamp">{{ message.timestamp|date:"H:i" }}</p>
+        </div>
+      {% empty %}
+        <p>No messages yet.</p>
+      {% endfor %}
+    </div>
+
+    <!-- Message Form -->
+    <form method="post" action="{% url 'chat_view' recipient_id=recipient.id %}" enctype="multipart/form-data" class="message-form mt-4">
+      {% csrf_token %}
+      <div class="form-group">
+        <textarea name="content" class="form-control" rows="3" placeholder="Type your message here..." required></textarea>
+      </div>
+      <div class="form-group">
+        <input type="file" name="file" class="form-control-file">
+      </div>
+      <button type="submit" class="btn btn-primary">Send Message</button>
+    </form>
+  </div>
+
+  <style>
+    .message-history {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .message {
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .message.sent {
+      background-color: #e1f5fe;
+      text-align: right;
+    }
+
+    .message.received {
+      background-color: #f1f8e9;
+      text-align: left;
+    }
+
+    .message-content {
+      margin: 0;
+    }
+
+    .message-file {
+      display: block;
+      margin-top: 5px;
+      color: #007bff;
+    }
+
+    .message-timestamp {
+      font-size: 0.8em;
+      color: #888;
+      margin: 5px 0 0;
+    }
+
+    .message-form {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-control {
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  </style>
+{% endblock %}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Site{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <!-- Font Awesome Icon Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        /* Основной стиль для активной навигации */
+        .active {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Стиль для навигационного меню */
+        header nav {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        header nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        header nav ul li {
+            margin: 0;
+        }
+
+        header nav ul li a {
+            text-decoration: none;
+            color: #333;
+            padding: 10px 15px;
+            display: block;
+        }
+
+        header nav ul li a:hover,
+        header nav ul li a.active {
+            background-color: #e9ecef;
+        }
+
+        header nav form button {
+            background-color: transparent;
+            border: none;
+            color: #007bff;
+            cursor: pointer;
+            font-size: 1em;
+            padding: 10px 15px;
+        }
+
+        header nav form button:hover {
+            text-decoration: underline;
+        }
+
+        /* Стиль для звезд рейтинга */
+        .star-rating {
+            display: flex;
+            direction: rtl;
+            font-size: 2em;
+            justify-content: center;
+        }
+
+        .star-rating input[type="radio"] {
+            display: none;
+        }
+
+        .star-rating label {
+            cursor: pointer;
+            color: #ddd;
+        }
+
+        .star-rating input[type="radio"]:checked ~ label {
+            color: #f5b301;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #ffca08;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li class="{% if request.path == '/' %}active{% endif %}"><a href="{% url 'home' %}">Home</a></li>
+                <li class="{% if request.path == '/search/' %}active{% endif %}"><a href="{% url 'search_listings' %}">Search</a></li>
+                <li class="{% if request.path == '/all_listings/' %}active{% endif %}"><a href="{% url 'all_listings' %}">All Listings</a></li>
+                <li class="{% if request.path == '/profile/' %}active{% endif %}"><a href="{% url 'profile' %}">Profile</a></li>
+                {% if user.is_authenticated %}
+                    <li>
+                        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">Logout</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        <!-- Контент страницы будет подставляться здесь -->
+        {% endblock %}
+    </main>
+
+    <script src="{% static 'scripts.js' %}"></script>
+</body>
+</html>

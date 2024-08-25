@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Message List</title>
+</head>
+<body>
+    <h1>Messages with {{ user.username }}</h1>
+    <h2>Received Messages</h2>
+    <ul>
+        {% for message in received_messages %}
+            <li>{{ message.sent_at }} - {{ message.content }}</li>
+        {% empty %}
+            <li>No received messages.</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Sent Messages</h2>
+    <ul>
+        {% for message in sent_messages %}
+            <li>{{ message.sent_at }} - {{ message.content }}</li>
+        {% empty %}
+            <li>No sent messages.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

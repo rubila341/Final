@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Listing</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}"> <!-- Подключение внешних стилей -->
+    <style>
+        /* Основные стили для страницы добавления объявления */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 15px 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .top-bar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s, transform 0.3s;
+            font-size: 16px;
+        }
+
+        .top-bar a:hover {
+            color: #ffd700;
+            transform: scale(1.1);
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 80px auto; /* Добавляем отступ сверху для видимости фиксированного заголовка */
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            border: 1px solid #ddd;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="file"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .form-group input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            padding: 15px;
+        }
+
+        .form-group input[type="submit"]:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-errors {
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        .form-errors p {
+            margin: 0;
+        }
+
+        .form-group p {
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'register' %}">Register</a>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'add_listing' %}">Add Listing</a>
+            <a href="{% url 'bookings' %}">My Bookings</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Add a New Listing</h1>
+        <form method="post" enctype="multipart/form-data">  <!-- Обратите внимание на enctype -->
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <div class="form-errors">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                {{ form.title.label_tag }}
+                {{ form.title }}
+                <p>{{ form.title.help_text }}</p>
+            </div>
+
+            <div class="form-group">
+                {{ form.location.label_tag }}
+                {{ form.location }}
+                <p>{{ form.location.help_text }}</p>
+            </div>
+
+            <div class="form-group">
+                {{ form.description.label_tag }}
+                {{ form.description }}
+                <p>{{ form.description.help_text }}</p>
+            </div>
+
+            <div class="form-group">
+                {{ form.price.label_tag }}
+                {{ form.price }}
+                <p>{{ form.price.help_text }}</p>
+            </div>
+
+            <div class="form-group">
+                {{ form.rooms.label_tag }}
+                {{ form.rooms }}
+                <p>{{ form.rooms.help_text }}</p>
+            </div>
+
+            <div class="form-group">
+                {{ form.property_type.label_tag }}
+                {{ form.property_type }}
+                <p>{{ form.property_type.help_text }}</p>
+            </div>
+
+            <div class="form-group">
+                {{ form.image.label_tag }}
+                {{ form.image }}
+                <p>{{ form.image.help_text }}</p>
+            </div>
+
+            <input type="submit" value="Add Listing">
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 15px 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .top-bar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s, transform 0.3s;
+            font-size: 16px;
+        }
+
+        .top-bar a:hover {
+            color: #ffd700;
+            transform: scale(1.1);
+        }
+
+        main {
+            padding: 80px 20px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .message-list {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .message-list h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .message-list .message-item {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-list .message-item:last-child {
+            border-bottom: none;
+        }
+
+        .message-list .message-item a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .message-list .message-item a:hover {
+            text-decoration: underline;
+        }
+
+        .message-list .message-item .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .message-list .message-item .content {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .message-list .message-item .view-button {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            text-decoration: none; /* Make sure the button doesn't have underline */
+        }
+
+        .message-list .message-item .view-button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}">Home</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'add_listing' %}">Add Listing</a>
+                <a href="{% url 'bookings' %}">My Bookings</a>
+                <a href="{% url 'profile' %}">Profile</a>
+                <a href="{% url 'logout' %}">Logout</a>
+                <a href="{% url 'inbox' %}">Inbox</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        <h1>Inbox</h1>
+        <div class="message-list">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message-item">
+                        <div class="meta">
+                            From: {{ message.sender.username }} | Date: {{ message.timestamp|date:"F j, Y, g:i a" }}
+                        </div>
+                        <div class="content">
+                            {{ message.subject }}
+                        </div>
+                        <a href="{% url 'message_detail' message.id %}" class="view-button">View Message</a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No messages found.</p>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>

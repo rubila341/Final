@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}"> <!-- Подключение стилей -->
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'register' %}">Register</a>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'add_listing' %}">Add Listing</a>
+            <a href="{% url 'bookings' %}">My Bookings</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1>Login</h1>
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_username">Username:</label>
+                    <input type="text" name="username" id="id_username" required>
+                    <p>Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password">Password:</label>
+                    <input type="password" name="password" id="id_password" required>
+                    <p>Your password can’t be too similar to your other personal information.<br>
+                    Your password must contain at least 8 characters.<br>
+                    Your password can’t be a commonly used password.<br>
+                    Your password can’t be entirely numeric.</p>
+                </div>
+
+                <input type="submit" value="Login">
+            </form>
+        </div>
+    </main>
+</body>
+</html>

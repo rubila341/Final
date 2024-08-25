@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Listings</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        /* Основные стили для страницы поиска объявлений */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .top-bar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s, transform 0.3s;
+            font-size: 14px;
+        }
+
+        .top-bar a:hover {
+            color: #ffd700;
+            transform: scale(1.05);
+        }
+
+        main {
+            max-width: 800px;
+            margin: 80px auto; /* Отступ сверху для видимости фиксированного заголовка */
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        section {
+            margin-bottom: 30px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        nav {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        nav a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #0056b3;
+        }
+
+        .filter-form {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .filter-form select, .filter-form input[type="text"], .filter-form button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'register' %}">Register</a>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'add_listing' %}">Add Listing</a>
+            <a href="{% url 'bookings' %}">My Bookings</a>
+        </div>
+    </header>
+
+    <main>
+        <section>
+            <h1>Search Results for "{{ query }}"</h1>
+
+            <!-- Форма фильтрации -->
+            <div class="filter-form">
+                <form method="get" action="{% url 'search_listings' %}">
+                    <input type="text" name="q" value="{{ query }}" placeholder="Search listings">
+                    <select name="location">
+                        <option value="">All Cities</option>
+                        {% for city in cities %}
+                            <option value="{{ city.id }}" {% if city.id|stringformat:"s" == location %}selected{% endif %}>{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+
+            {% if listings %}
+                <ul>
+                    {% for listing in listings %}
+                        <li>
+                            <h2>{{ listing.title }}</h2>
+                            <p>{{ listing.description }}</p>
+                            <p><strong>Location:</strong> {{ listing.location.name }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No listings found for "{{ query }}"</p>
+            {% endif %}
+        </section>
+
+        <nav>
+            <a href="{% url 'home' %}">Back to Home</a>
+        </nav>
+    </main>
+</body>
+</html>

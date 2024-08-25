@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ listing.title }}{% endblock %}
+
+{% block content %}
+<header>
+    <div class="top-bar">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'register' %}">Register</a>
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'add_listing' %}">Add Listing</a>
+        <a href="{% url 'bookings' %}">My Bookings</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}">Profile</a>
+            <!-- Форма для выхода -->
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary">Logout</button>
+            </form>
+        {% endif %}
+    </div>
+</header>
+
+<main>
+    <section>
+        <h1>{{ listing.title }}</h1>
+        <img src="{{ listing.image.url }}" alt="{{ listing.title }}" onerror="this.src='{% static 'images/placeholder.jpg' %}'">
+        <p><strong>Description:</strong> {{ listing.description }}</p>
+        <p><strong>Location:</strong> {{ listing.location.name }}</p>
+        <p><strong>Price:</strong> ${{ listing.price }}</p>
+        <p><strong>Rooms:</strong> {{ listing.rooms }}</p>
+        <p><strong>Property Type:</strong> {{ listing.get_property_type_display }}</p>
+        <p><strong>Created At:</strong> {{ listing.created_at|date:"F j, Y, g:i a" }}</p>
+        <p><strong>Updated At:</strong> {{ listing.updated_at|date:"F j, Y, g:i a" }}</p>
+        <p><strong>Owner:</strong> {{ listing.owner.username }}</p>
+
+        <!-- Action buttons -->
+        {% if user.is_authenticated %}
+            {% if user == listing.owner %}
+                <!-- Button to edit listing (visible only to the owner) -->
+                <a href="{% url 'edit_listing' listing.id %}" class="btn btn-warning">Edit Listing</a>
+                <p>This is your listing.</p>
+            {% else %}
+                <!-- Button to send a message -->
+                <button id="message-button" class="btn btn-primary">Send Message</button>
+                <p>Contact the owner of this listing:</p>
+            {% endif %}
+        {% else %}
+            <p>Please <a href="{% url 'login' %}">log in</a> to send a message or rate this listing.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>Rating</h2>
+        <p><strong>Average Rating:</strong> <span id="current-rating">{{ listing.rating }}</span> / 5</p>
+
+        {% if user.is_authenticated %}
+            <h3>Your Rating</h3>
+            <form id="rating-form" method="post" action="{% url 'rate_listing' listing.id %}">
+                {% csrf_token %}
+                <div class="star-rating">
+                    <input type="radio" id="star5" name="rating" value="5" {% if user_rating == 5 %}checked{% endif %}>
+                    <label for="star5" title="5 stars" class="fa fa-star {% if user_rating >= 5 %}checked{% endif %}"></label>
+                    <input type="radio" id="star4" name="rating" value="4" {% if user_rating == 4 %}checked{% endif %}>
+                    <label for="star4" title="4 stars" class="fa fa-star {% if user_rating >= 4 %}checked{% endif %}"></label>
+                    <input type="radio" id="star3" name="rating" value="3" {% if user_rating == 3 %}checked{% endif %}>
+                    <label for="star3" title="3 stars" class="fa fa-star {% if user_rating >= 3 %}checked{% endif %}"></label>
+                    <input type="radio" id="star2" name="rating" value="2" {% if user_rating == 2 %}checked{% endif %}>
+                    <label for="star2" title="2 stars" class="fa fa-star {% if user_rating >= 2 %}checked{% endif %}"></label>
+                    <input type="radio" id="star1" name="rating" value="1" {% if user_rating == 1 %}checked{% endif %}>
+                    <label for="star1" title="1 star" class="fa fa-star {% if user_rating >= 1 %}checked{% endif %}"></label>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Rating</button>
+            </form>
+            <div id="rating-feedback"></div> <!-- Placeholder for AJAX feedback -->
+
+            {% if rating_form.errors %}
+                <div class="alert alert-danger mt-3">
+                    <ul>
+                        {% for field in rating_form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in rating_form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% else %}
+            <p>Please <a href="{% url 'login' %}">log in</a> to rate this listing.</p>
+        {% endif %}
+    </section>
+
+    <nav class="mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a>
+    </nav>
+</main>
+
+<!-- Message Modal -->
+<div id="message-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Send a Message</h2>
+        <form id="message-form" method="post" action="{% url 'send_message' listing.owner.id %}">
+            {% csrf_token %}
+            <textarea name="message" placeholder="Type your message here..." rows="5" class="form-control"></textarea>
+            <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+    </div>
+</div>
+
+<!-- AJAX scripts for form submission -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingForm = document.getElementById('rating-form');
+    const messageButton = document.getElementById('message-button');
+    const messageModal = document.getElementById('message-modal');
+    const closeModal = messageModal.querySelector('.close');
+    const messageForm = document.getElementById('message-form');
+
+    // Handle rating form submission via AJAX
+    if (ratingForm) {
+        ratingForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(ratingForm);
+            fetch(ratingForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken') // Get CSRF token
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const feedbackElement = document.getElementById('rating-feedback');
+                if (data.success) {
+                    // Update the rating on the page
+                    document.getElementById('current-rating').textContent = data.new_rating;
+                    feedbackElement.innerHTML = '<div class="alert alert-success">Rating submitted successfully!</div>';
+                } else {
+                    feedbackElement.innerHTML = '<div class="alert alert-danger">Error: ' + (data.errors ? JSON.stringify(data.errors) : 'Unknown error') + '</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('rating-feedback').innerHTML = '<div class="alert alert-danger">An unexpected error occurred.</div>';
+            });
+        });
+    }
+
+    // Handle message button click
+    if (messageButton) {
+        messageButton.addEventListener('click', function() {
+            messageModal.style.display = 'block';
+        });
+    }
+
+    // Close message modal
+    if (closeModal) {
+        closeModal.addEventListener('click', function() {
+            messageModal.style.display = 'none';
+        });
+    }
+
+    // Handle message form submission via AJAX
+    if (messageForm) {
+        messageForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(messageForm);
+            fetch(messageForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken') // Get CSRF token
+                },
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    messageModal.style.display = 'none';
+                    alert('Your message has been sent successfully!');
+                } else {
+                    alert('Failed to send message.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An unexpected error occurred.');
+            });
+        });
+    }
+
+    // Function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+
+<!-- CSS for star rating and modal -->
+<style>
+.star-rating {
+    direction: rtl;
+    display: inline-block;
+    padding: 20px;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    font-size: 2em;
+    color: #ddd;
+    cursor: pointer;
+}
+
+.star-rating input[type="radio"]:checked ~ label {
+    color: #f5b301;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffca08;
+}
+
+.modal {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Font Awesome styles for stars */
+.fa-star {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
+</style>
+{% endblock %}
