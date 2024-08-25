@@ -1,5 +1,3 @@
-# views.py
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout as auth_logout
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
@@ -152,7 +150,6 @@ def logout(request):
 
 
 # Просмотр всех объявлений с пагинацией и сортировкой
-@login_required
 def all_listings(request):
     page_number = request.GET.get('page', 1)
     items_per_page = int(request.GET.get('items_per_page', 5))

@@ -116,3 +116,6 @@ SESSION_COOKIE_SAMESITE = 'None'  # Adjust based on your needs
 SESSION_COOKIE_SECURE = True  # Set to True if you're using HTTPS
 CSRF_COOKIE_SAMESITE = 'None'  # Adjust as needed
 CSRF_COOKIE_SECURE = True  # Set to True if you're using HTTPS
+
+# Login URL configuration
+LOGIN_URL = '/login/'  # URL where users will be redirected to log in

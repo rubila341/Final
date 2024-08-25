@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,14 +58,16 @@
             font-size: 24px;
         }
 
-        .filters, .sorting {
+        .filters,
+        .sorting {
             display: flex;
             justify-content: center;
             gap: 20px;
             margin-bottom: 20px;
         }
 
-        .filters form, .sorting form {
+        .filters form,
+        .sorting form {
             display: flex;
             align-items: center;
             gap: 15px;
@@ -74,7 +77,10 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .filters select, .sorting select, .filters input, .sorting input {
+        .filters select,
+        .sorting select,
+        .filters input,
+        .sorting input {
             padding: 5px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -82,7 +88,8 @@
             font-size: 14px;
         }
 
-        .filters button, .sorting button {
+        .filters button,
+        .sorting button {
             padding: 7px 15px;
             border: none;
             border-radius: 4px;
@@ -93,7 +100,8 @@
             transition: background-color 0.3s;
         }
 
-        .filters button:hover, .sorting button:hover {
+        .filters button:hover,
+        .sorting button:hover {
             background-color: #0056b3;
         }
 
@@ -191,11 +199,13 @@
             color: #ffc107;
         }
 
-        .rating-form, .message-form {
+        .rating-form,
+        .message-form {
             margin-top: 10px;
         }
 
-        .rating-form select, .message-form button {
+        .rating-form select,
+        .message-form button {
             padding: 5px;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -214,14 +224,19 @@
         }
     </style>
 </head>
+
 <body>
     <header>
         <div class="top-bar">
             <a href="{% url 'home' %}">Home</a>
-            <a href="{% url 'register' %}">Register</a>
-            <a href="{% url 'login' %}">Login</a>
-            <a href="{% url 'add_listing' %}">Add Listing</a>
-            <a href="{% url 'bookings' %}">My Bookings</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'add_listing' %}">Add Listing</a>
+                <a href="{% url 'bookings' %}">My Bookings</a>
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'register' %}">Register</a>
+                <a href="{% url 'login' %}">Login</a>
+            {% endif %}
         </div>
     </header>
 
@@ -282,10 +297,11 @@
             {% for listing in page.object_list %}
                 <li>
                     <h2>{{ listing.title }}</h2>
-                    <p>{{ listing.description }}</p>
-                    <p>City: {{ listing.location.name }}</p>
-                    <p>Price: ${{ listing.price }}</p>
-                    <p>Date Posted: {{ listing.created_at }}</p>
+                    <p><strong>Description:</strong> {{ listing.description }}</p>
+                    <p><strong>Location:</strong> {{ listing.location.name }}</p>
+                    <p><strong>Price:</strong> ${{ listing.price }}</p>
+                    <p><strong>Available from:</strong> {{ listing.start_date }}</p>
+                    <p><strong>Available to:</strong> {{ listing.end_date }}</p>
 
                     <!-- Рейтинг -->
                     <p>
@@ -320,7 +336,7 @@
                     </form>
                 </li>
             {% empty %}
-                <li class="empty-message">No listings available.</li>
+                <p class="empty-message">No listings found.</p>
             {% endfor %}
         </ul>
 
@@ -328,17 +344,17 @@
         <div class="pagination">
             <span class="step-links">
                 {% if page.has_previous %}
-                    <a href="?page=1&items_per_page={{ items_per_page }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if location %}&location={{ location }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">&laquo; First</a>
-                    <a href="?page={{ page.previous_page_number }}&items_per_page={{ items_per_page }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if location %}&location={{ location }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">&lsaquo; Previous</a>
+                    <a href="?page=1{% if location %}&location={{ location }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if items_per_page %}&items_per_page={{ items_per_page }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">&laquo; First</a>
+                    <a href="?page={{ page.previous_page_number }}{% if location %}&location={{ location }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if items_per_page %}&items_per_page={{ items_per_page }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Previous</a>
                 {% endif %}
 
                 <span class="current">
-                    Page {{ page.number }} of {{ page.paginator.num_pages }}
+                    Page {{ page.number }} of {{ page.paginator.num_pages }}.
                 </span>
 
                 {% if page.has_next %}
-                    <a href="?page={{ page.next_page_number }}&items_per_page={{ items_per_page }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if location %}&location={{ location }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Next &rsaquo;</a>
-                    <a href="?page={{ page.paginator.num_pages }}&items_per_page={{ items_per_page }}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if location %}&location={{ location }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Last &raquo;</a>
+                    <a href="?page={{ page.next_page_number }}{% if location %}&location={{ location }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if items_per_page %}&items_per_page={{ items_per_page }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Next</a>
+                    <a href="?page={{ page.paginator.num_pages }}{% if location %}&location={{ location }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if items_per_page %}&items_per_page={{ items_per_page }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Last &raquo;</a>
                 {% endif %}
             </span>
         </div>
@@ -346,20 +362,20 @@
 
     <script>
         document.querySelectorAll('.rating .star').forEach(star => {
-            star.addEventListener('mouseover', function() {
+            star.addEventListener('mouseover', function () {
                 const ratingValue = this.textContent;
                 this.parentElement.querySelectorAll('.star').forEach(s => {
                     s.classList.toggle('hover', s.textContent <= ratingValue);
                 });
             });
 
-            star.addEventListener('mouseout', function() {
+            star.addEventListener('mouseout', function () {
                 this.parentElement.querySelectorAll('.star').forEach(s => {
                     s.classList.remove('hover');
                 });
             });
 
-            star.addEventListener('click', function() {
+            star.addEventListener('click', function () {
                 const ratingValue = this.textContent;
                 const form = this.closest('li').querySelector('.rating-form');
                 form.querySelector('select[name="rating"]').value = ratingValue;
@@ -368,4 +384,5 @@
         });
     </script>
 </body>
+
 </html>
