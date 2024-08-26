@@ -5,12 +5,16 @@
     <h2 class="mb-4">Chat with {{ recipient.username }}</h2>
 
     <div class="card mb-4">
-        <div class="card-body">
+        <div class="card-body chat-container">
             <div class="chat-box">
                 {% for message in messages %}
                 <div class="message {% if message.sender == user %}sent{% else %}received{% endif %}">
                     <div class="message-avatar">
+                        {% if message.sender.profile_picture %}
                         <img src="{{ message.sender.profile_picture.url }}" alt="{{ message.sender.username }}" class="avatar">
+                        {% else %}
+                        <div class="avatar-placeholder"></div>
+                        {% endif %}
                     </div>
                     <div class="message-content">
                         <strong>{{ message.sender.username }}</strong>
@@ -25,26 +29,31 @@
         </div>
     </div>
 
-    <form method="post" action="{% url 'chat_view' recipient_id=recipient.id %}">
-        {% csrf_token %}
-        <div class="form-group">
-            {{ form.as_p }}
-        </div>
-        <button type="submit" class="btn btn-primary">Send</button>
-    </form>
+    <div class="chat-toolbar">
+        <form method="post" action="{% url 'send_message' recipient.id %}">
+            {% csrf_token %}
+            <div class="form-group mb-0">
+                {{ form.as_p }}
+            </div>
+            <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+    </div>
 </div>
 {% endblock %}
 
 {% block styles %}
 <style>
-    .chat-box {
-        max-height: 500px;
+    .chat-container {
+        max-height: calc(100vh - 200px); /* Adjust based on your layout */
         overflow-y: auto;
-        border: 1px solid #ddd;
-        border-radius: 12px;
-        padding: 15px;
+    }
+
+    .chat-box {
         background: #f9f9f9;
         background: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 100%);
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
@@ -86,6 +95,15 @@
         height: 40px;
         border-radius: 50%;
         object-fit: cover;
+        background-color: #ddd;
+    }
+
+    .avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #ddd;
+        display: inline-block;
     }
 
     .message-content {
@@ -99,7 +117,18 @@
     }
 
     .form-group {
-        margin-top: 20px;
+        margin-bottom: 0;
+    }
+
+    .chat-toolbar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border-top: 1px solid #ddd;
+        padding: 10px;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .btn-primary {

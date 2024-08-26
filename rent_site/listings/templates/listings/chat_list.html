@@ -1,80 +1,216 @@
-{% extends "base_generic.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat List</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
 
-{% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">Chat List</h1>
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
 
-    <div class="list-group">
-        {% for chat in chats %}
-        <a href="{% url 'chat_view' recipient_id=chat.recipient.id %}" class="list-group-item list-group-item-action">
-            <div class="d-flex w-100 justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    <img src="{{ chat.recipient.profile_picture.url }}" alt="{{ chat.recipient.username }}" class="avatar mr-3">
-                    <h5 class="mb-1">{{ chat.recipient.username }}</h5>
-                </div>
-                <small>{{ chat.last_message_date|date:"d M Y H:i" }}</small>
-            </div>
-            <p class="mb-1">{{ chat.last_message|slice:":100" }}{% if chat.last_message|length > 100 %}...{% endif %}</p>
-        </a>
-        {% empty %}
-        <p>No chats available.</p>
-        {% endfor %}
+        .top-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .top-bar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            transition: color 0.3s, transform 0.3s;
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .top-bar a:hover {
+            color: #ffd700;
+            background-color: rgba(0, 0, 0, 0.6);
+            transform: scale(1.1);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+            margin-top: 80px; /* Отступ для корректного размещения контента под header */
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: calc(100% + 40px);
+            height: calc(100% + 40px);
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            z-index: -1;
+            transform: rotate(-3deg);
+            opacity: 0.2;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            background: #fff;
+            border-radius: 8px;
+            transition: background 0.3s, transform 0.3s;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .chat-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .chat-item img {
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            margin-right: 15px;
+            object-fit: cover;
+            border: 3px solid #007bff;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .chat-item img:hover {
+            border-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .chat-item .info {
+            flex: 1;
+        }
+
+        .chat-item .info h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .chat-item .info p {
+            margin: 5px 0;
+            color: #777;
+        }
+
+        .chat-item .info .date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .chat-item .info .message {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .chat-item .view-chat {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .chat-item .view-chat:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+        }
+
+        .footer img {
+            max-width: 100px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}">Home</a> <!-- Добавленная кнопка Home -->
+            <a href="{% url 'all_listings' %}">View All Listings</a>
+            <a href="{% url 'register' %}">Register</a>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'add_listing' %}">Add Listing</a>
+            <a href="{% url 'bookings' %}">My Bookings</a>
+            <a href="{% url 'chat_list' %}">Chat</a> <!-- Добавленная кнопка Chat -->
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}">Profile</a>
+                <!-- Форма для выхода -->
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background-color: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 25px; font-size: 16px; cursor: pointer;">Logout</button>
+                </form>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Chats</h1>
+        {% if chats %}
+            <ul>
+                {% for chat in chats %}
+                    <li class="chat-item">
+                        <img src="{% if chat.recipient.profile_picture %}{{ chat.recipient.profile_picture.url }}{% else %}/static/default-profile-pic.jpg{% endif %}" alt="Profile Picture">
+                        <div class="info">
+                            <h2>{{ chat.recipient.username }}</h2>
+                            <p class="message">{{ chat.last_message }}</p>
+                            <p class="date">{{ chat.last_message_date|date:"d M Y H:i" }}</p>
+                        </div>
+                        <a href="{% url 'chat_view' chat.recipient.id %}" class="view-chat">View Chat</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No chats available.</p>
+        {% endif %}
     </div>
-</div>
-{% endblock %}
 
-{% block styles %}
-<style>
-    .list-group-item {
-        cursor: pointer;
-        border: 1px solid #ddd;
-        border-radius: 12px;
-        margin-bottom: 15px;
-        transition: background-color 0.3s, box-shadow 0.3s;
-        padding: 15px;
-        background: #ffffff;
-        display: flex;
-        align-items: center;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .list-group-item:hover,
-    .list-group-item:focus {
-        background-color: #eaf4ff;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .list-group-item.active {
-        background-color: #e0f7fa;
-        border-color: #b2ebf2;
-    }
-
-    .avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .d-flex.align-items-center {
-        display: flex;
-        align-items: center;
-    }
-
-    .mr-3 {
-        margin-right: 15px;
-    }
-
-    .mb-4 {
-        margin-bottom: 1.5rem;
-    }
-
-    .mb-1 {
-        margin-bottom: 0.5rem;
-    }
-
-    .text-muted {
-        color: #6c757d;
-    }
-</style>
-{% endblock %}
+    <div class="footer">
+        <p>© 2024 YourSite. All rights reserved.</p>
+        <img src="{% static 'images/logo.png' %}" alt="YourSite Logo">
+    </div>
+</body>
+</html>

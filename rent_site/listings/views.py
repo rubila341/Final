@@ -12,17 +12,14 @@ from django.db.models import Q
 from .forms import UserRegisterForm, ListingForm, RatingForm, MessageForm
 from .models import Listing, Booking, Rating, City, User, Message, Chat
 
-
 # Политика конфиденциальности
 def privacy_policy(request):
     return render(request, 'listings/privacy_policy.html')
-
 
 # Домашняя страница
 def home(request):
     cities = City.objects.values('name').distinct()
     return render(request, 'listings/index.html', {'cities': cities})
-
 
 # Регистрация пользователя
 def register(request):
@@ -36,7 +33,6 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'listings/register.html', {'form': form})
 
-
 # Авторизация пользователя
 def user_login(request):
     if request.method == 'POST':
@@ -48,7 +44,6 @@ def user_login(request):
     else:
         form = AuthenticationForm()
     return render(request, 'listings/login.html', {'form': form})
-
 
 # Добавление нового объявления
 @login_required
@@ -63,7 +58,6 @@ def add_listing(request):
     else:
         form = ListingForm()
     return render(request, 'listings/add_listing.html', {'form': form})
-
 
 # Редактирование объявления
 @login_required
@@ -80,13 +74,11 @@ def edit_listing(request, id):
 
     return render(request, 'listings/edit_listing.html', {'form': form, 'listing': listing})
 
-
 # Поиск объявлений
 def search_listings(request):
     query = request.GET.get('q', '')
     listings = Listing.objects.filter(title__icontains=query) if query else Listing.objects.all()
     return render(request, 'listings/search_listings.html', {'listings': listings, 'query': query})
-
 
 # Отображение объявлений в конкретном городе
 def city_listings(request, city):
@@ -94,13 +86,11 @@ def city_listings(request, city):
     listings = Listing.objects.filter(location=city_object)
     return render(request, 'listings/city_listings.html', {'listings': listings, 'city': city})
 
-
 # Просмотр бронирований пользователя
 @login_required
 def bookings(request):
     user_bookings = Booking.objects.filter(user=request.user)
     return render(request, 'listings/bookings.html', {'bookings': user_bookings})
-
 
 # Профиль пользователя с управлением объявлениями
 @login_required
@@ -125,7 +115,6 @@ def profile(request):
 
     return render(request, 'listings/profile.html', {'listings': user_listings})
 
-
 # Смена пароля пользователя
 @login_required
 def change_password(request):
@@ -139,7 +128,6 @@ def change_password(request):
         form = PasswordChangeForm(user=request.user)
     return render(request, 'listings/change_password.html', {'form': form})
 
-
 # Выход из учетной записи
 @login_required
 def logout(request):
@@ -147,7 +135,6 @@ def logout(request):
         auth_logout(request)
         return redirect('home')
     return HttpResponseNotAllowed(['POST'])
-
 
 # Просмотр всех объявлений с пагинацией и сортировкой
 def all_listings(request):
@@ -200,7 +187,6 @@ def all_listings(request):
         'end_date': end_date
     })
 
-
 # Детальный просмотр объявления
 def listing_detail(request, id):
     listing = get_object_or_404(Listing, id=id)
@@ -219,7 +205,7 @@ def listing_detail(request, id):
                 rating, created = Rating.objects.get_or_create(listing=listing, user=request.user)
                 rating.rating = rating_value
                 rating.save()
-                listing.update_rating()
+                listing.update_rating()  # Убедитесь, что этот метод существует
                 return redirect('listing_detail', id=id)
         elif 'message_submit' in request.POST:
             message_form = MessageForm(request.POST, request.FILES)
@@ -238,7 +224,6 @@ def listing_detail(request, id):
         'user_rating': user_rating.rating if user_rating else None
     })
 
-
 # Оценка объявления
 @login_required
 def rate_listing(request, id):
@@ -250,7 +235,7 @@ def rate_listing(request, id):
             rating, created = Rating.objects.get_or_create(listing=listing, user=request.user)
             rating.rating = rating_value
             rating.save()
-            listing.update_rating()
+            listing.update_rating()  # Убедитесь, что этот метод существует
             return JsonResponse({'success': True, 'new_rating': listing.rating})
         return JsonResponse({'success': False, 'errors': form.errors}, status=400)
     return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
@@ -299,9 +284,10 @@ def chat_list(request):
     # Получаем список уникальных чатов для пользователя
     sent_chats = Message.objects.filter(sender=request.user).values('receiver').distinct()
     received_chats = Message.objects.filter(receiver=request.user).values('sender').distinct()
+
     # Объединяем оба списка и убираем дубликаты
     all_chats = list(sent_chats) + list(received_chats)
-    unique_chats = set(chat['receiver'] if chat['receiver'] else chat['sender'] for chat in all_chats)
+    unique_chats = set(chat['receiver'] if 'receiver' in chat else chat['sender'] for chat in all_chats)
 
     chat_objects = []
     for chat_id in unique_chats:

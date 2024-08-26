@@ -1,0 +1,31 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <h1>Book Listing</h1>
+
+  <h2>{{ listing.title }}</h2>
+  <p>{{ listing.description }}</p>
+  <p>Price: ${{ listing.price }}</p>
+  <p>Location: {{ listing.location.name }}, {{ listing.location.country }}</p>
+
+  <form method="post" action="{% url 'book_listing' listing.id %}">
+    {% csrf_token %}
+    <fieldset>
+      <legend>Booking Details</legend>
+
+      <div class="form-group">
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" required>
+      </div>
+
+      <div class="form-group">
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date" required>
+      </div>
+
+      <button type="submit">Book Now</button>
+    </fieldset>
+  </form>
+
+  <a href="{% url 'all_listings' %}">Back to Listings</a>
+{% endblock %}
