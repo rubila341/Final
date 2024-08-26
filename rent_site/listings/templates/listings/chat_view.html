@@ -43,9 +43,11 @@
 
 {% block styles %}
 <style>
+    /* Основные стили для чата */
     .chat-container {
-        max-height: calc(100vh - 200px); /* Adjust based on your layout */
+        max-height: calc(100vh - 200px); /* Ограничение высоты блока чата */
         overflow-y: auto;
+        padding-right: 15px; /* Добавляем отступ справа для полосы прокрутки */
     }
 
     .chat-box {
@@ -66,11 +68,12 @@
         position: relative;
         max-width: 75%;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: background-color 0.3s;
+        transition: background-color 0.3s, transform 0.2s;
     }
 
     .message:hover {
         background-color: #f1f1f1;
+        transform: translateY(-2px);
     }
 
     .sent {
@@ -96,6 +99,8 @@
         border-radius: 50%;
         object-fit: cover;
         background-color: #ddd;
+        border: 2px solid #007bff;
+        transition: border-color 0.3s;
     }
 
     .avatar-placeholder {
@@ -140,11 +145,42 @@
         color: white;
         font-size: 16px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        transition: background-color 0.3s, transform 0.2s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .btn-primary:hover {
         background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    .text-muted {
+        color: #6c757d;
+    }
+
+    @media (max-width: 768px) {
+        .chat-toolbar {
+            position: relative;
+            border-top: none;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            width: auto;
+        }
     }
 </style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Скрипт для добавления динамического поведения
+    document.addEventListener('DOMContentLoaded', function() {
+        // Прокрутка чата вниз при загрузке страницы
+        const chatBox = document.querySelector('.chat-box');
+        if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    });
+</script>
 {% endblock %}

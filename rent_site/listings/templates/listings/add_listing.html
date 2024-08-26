@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Listing</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}"> <!-- Подключение внешних стилей -->
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
     <style>
         /* Основные стили для страницы добавления объявления */
         body {
@@ -38,8 +38,10 @@
             color: #fff;
             text-decoration: none;
             font-weight: bold;
-            transition: color 0.3s, transform 0.3s;
+            transition: color 0.3s, transform 0.3s, border-bottom 0.3s;
             font-size: 16px;
+            position: relative;
+            padding-bottom: 5px;
         }
 
         .top-bar a:hover {
@@ -47,14 +49,45 @@
             transform: scale(1.1);
         }
 
+        .top-bar a::after {
+            content: '';
+            display: block;
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 100%;
+            height: 2px;
+            background: #ffd700;
+            transform: scaleX(0);
+            transition: transform 0.3s;
+            transform-origin: bottom right;
+        }
+
+        .top-bar a:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
         .container {
             max-width: 700px;
-            margin: 80px auto; /* Добавляем отступ сверху для видимости фиксированного заголовка */
+            margin: 80px auto;
             padding: 30px;
             background: #fff;
             border-radius: 10px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
             border: 1px solid #ddd;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
@@ -62,6 +95,7 @@
             color: #333;
             margin-bottom: 30px;
             font-size: 24px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         form {
@@ -72,6 +106,11 @@
 
         .form-group {
             margin-bottom: 20px;
+            position: relative;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .form-group label {
@@ -92,6 +131,18 @@
             border-radius: 5px;
             box-sizing: border-box;
             font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background: #fff;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="number"]:focus,
+        .form-group input[type="file"]:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+            outline: none;
         }
 
         .form-group textarea {
@@ -106,17 +157,25 @@
             font-size: 18px;
             transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
             padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
         }
 
         .form-group input[type="submit"]:hover {
             background-color: #0056b3;
             transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
 
         .form-errors {
             color: #dc3545;
             margin-bottom: 20px;
+            background: #f8d7da;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .form-errors p {
@@ -126,6 +185,18 @@
         .form-group p {
             font-size: 0.9em;
             color: #666;
+        }
+
+        /* Дополнительные стили для изображений и полей выбора файлов */
+        .form-group input[type="file"] {
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #f5f5f5;
+            transition: background-color 0.3s;
+        }
+
+        .form-group input[type="file"]:hover {
+            background-color: #e2e6ea;
         }
     </style>
 </head>
@@ -142,7 +213,7 @@
 
     <div class="container">
         <h1>Add a New Listing</h1>
-        <form method="post" enctype="multipart/form-data">  <!-- Обратите внимание на enctype -->
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
             {% if form.errors %}

@@ -54,13 +54,19 @@
     header {
         background-color: rgba(0, 0, 0, 0.8);
         color: #fff;
-        padding: 10px 20px;
+        padding: 15px 20px;
         position: fixed;
         width: 100%;
         top: 0;
         left: 0;
         z-index: 1000;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    header.scrolled {
+        background-color: rgba(0, 0, 0, 0.9);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
     }
 
     .top-bar {
@@ -75,7 +81,7 @@
         text-decoration: none;
         font-weight: bold;
         font-size: 18px; /* Увеличиваем размер шрифта */
-        transition: color 0.3s, transform 0.3s;
+        transition: color 0.3s, transform 0.3s, background-color 0.3s;
         padding: 10px 15px; /* Добавляем внутренние отступы */
         border-radius: 5px; /* Закругляем углы */
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Добавляем тень */
@@ -111,11 +117,12 @@
         position: relative;
         max-width: 75%;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: background-color 0.3s;
+        transition: background-color 0.3s, transform 0.2s;
     }
 
     .message:hover {
         background-color: #f1f1f1;
+        transform: translateY(-2px);
     }
 
     .sent {
@@ -140,6 +147,8 @@
         height: 40px;
         border-radius: 50%;
         object-fit: cover;
+        border: 2px solid #007bff;
+        transition: border-color 0.3s;
     }
 
     .avatar-placeholder {
@@ -173,11 +182,41 @@
         color: white;
         font-size: 16px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        transition: background-color 0.3s, transform 0.2s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .btn-primary:hover {
         background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    .form-errors {
+        color: #dc3545;
+        margin-bottom: 15px;
+    }
+
+    .form-errors ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .form-errors li {
+        margin-bottom: 5px;
     }
 </style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Скрипт для изменения цвета заголовка при прокрутке
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('header');
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+</script>
 {% endblock %}

@@ -18,22 +18,24 @@
             margin: 0 auto;
             padding: 20px;
             background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 80px; /* Отступ для размещения под фиксированным header */
         }
 
         h1 {
             color: #333;
-            font-size: 2em;
-            border-bottom: 2px solid #007bff;
+            font-size: 2.2em;
+            border-bottom: 3px solid #007bff;
             padding-bottom: 10px;
             margin-bottom: 20px;
+            text-align: center;
         }
 
         h2 {
             color: #555;
-            font-size: 1.5em;
-            border-bottom: 1px solid #ddd;
+            font-size: 1.6em;
+            border-bottom: 2px solid #ddd;
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
@@ -48,13 +50,13 @@
             margin: 10px 0;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s, box-shadow 0.3s;
         }
 
         li:hover {
-            background-color: #f1f1f1;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background-color: #f9f9f9;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
 
         .no-messages {
@@ -73,6 +75,26 @@
             font-size: 1em;
             color: #333;
             margin-top: 5px;
+        }
+
+        /* Адаптивные стили */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin-top: 60px; /* Уменьшен верхний отступ для мобильных устройств */
+            }
+
+            h1 {
+                font-size: 1.8em; /* Уменьшен размер шрифта заголовка для мобильных устройств */
+            }
+
+            h2 {
+                font-size: 1.4em; /* Уменьшен размер шрифта заголовков секций для мобильных устройств */
+            }
+
+            .message-content {
+                font-size: 0.9em; /* Уменьшен размер шрифта сообщений для мобильных устройств */
+            }
         }
     </style>
 </head>

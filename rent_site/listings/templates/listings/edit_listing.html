@@ -23,7 +23,13 @@
             top: 0;
             left: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        header.scrolled {
+            background-color: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
         .top-bar {
@@ -37,13 +43,36 @@
             color: #fff;
             text-decoration: none;
             font-weight: bold;
-            transition: color 0.3s, transform 0.3s;
+            transition: color 0.3s, transform 0.3s, background-color 0.3s;
             font-size: 16px;
+            position: relative;
+            padding: 10px 15px;
+            border-radius: 5px;
         }
 
         .top-bar a:hover {
             color: #ffd700;
+            background-color: rgba(255, 255, 255, 0.2);
             transform: scale(1.1);
+        }
+
+        .top-bar a::after {
+            content: '';
+            display: block;
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 100%;
+            height: 2px;
+            background: #ffd700;
+            transform: scaleX(0);
+            transition: transform 0.3s;
+            transform-origin: bottom right;
+        }
+
+        .top-bar a:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
         }
 
         main {
@@ -55,15 +84,34 @@
             margin: auto;
             background: #fff;
             border: 1px solid #ddd;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s;
+            position: relative;
+        }
+
+        .form-container::before {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #007bff, #0056b3);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .form-container:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
         }
 
         .form-container h2 {
             margin-top: 0;
-            font-size: 22px;
+            font-size: 24px;
             color: #333;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         .form-container label {
@@ -79,9 +127,19 @@
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 5px;
             margin-bottom: 15px;
             font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-container input:focus,
+        .form-container textarea:focus,
+        .form-container select:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
         }
 
         .form-container button {
@@ -90,17 +148,19 @@
             border: none;
             border-radius: 5px;
             padding: 10px 20px;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.3s, transform 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .form-container button:hover {
             background: #0056b3;
+            transform: scale(1.05);
         }
 
         .form-errors {
-            color: red;
+            color: #dc3545;
             margin-bottom: 15px;
         }
 
@@ -173,5 +233,17 @@
             </form>
         </div>
     </main>
+
+    <script>
+        // Скрипт для изменения цвета заголовка при прокрутке
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
 </body>
 </html>

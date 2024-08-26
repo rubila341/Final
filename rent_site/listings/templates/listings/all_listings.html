@@ -58,76 +58,154 @@
             font-size: 24px;
         }
 
-        .filters,
-        .sorting {
+        .filter-container {
             display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .filters form,
-        .sorting form {
-            display: flex;
-            align-items: center;
+            flex-wrap: wrap;
             gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .filter-card,
+        .sort-card {
             background-color: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            max-width: 300px;
+            transition: box-shadow 0.3s, transform 0.3s;
+            flex: 1 1 auto;
         }
 
-        .filters select,
-        .sorting select,
-        .filters input,
-        .sorting input {
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            outline: none;
+        .filter-card:hover,
+        .sort-card:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .filter-card label,
+        .sort-card label {
             font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
         }
 
-        .filters button,
-        .sorting button {
-            padding: 7px 15px;
-            border: none;
-            border-radius: 4px;
+        .filter-card select,
+        .sort-card select,
+        .filter-card input,
+        .sort-card input,
+        .filter-card button,
+        .sort-card button {
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .filter-card button,
+        .sort-card button {
             background-color: #007bff;
             color: #fff;
-            font-size: 14px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            border: none;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
-        .filters button:hover,
-        .sorting button:hover {
+        .filter-card button:hover,
+        .sort-card button:hover {
             background-color: #0056b3;
+            transform: scale(1.02);
+        }
+
+        .filter-card .range-slider,
+        .sort-card .range-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .range-slider input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        .range-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .range-slider input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .filter-card .price-values {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #333;
         }
 
         ul {
             list-style-type: none;
             padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
         }
 
         li {
             background: #fff;
             border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
             padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 300px;
             transition: transform 0.3s, box-shadow 0.3s;
         }
 
         li:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform: scale(1.03);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .listing-card {
+            width: 100%;
+            text-align: center;
+        }
+
+        .listing-image {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 15px;
         }
 
         h2 {
             margin-top: 0;
-            font-size: 20px;
+            font-size: 22px;
+            color: #333;
         }
 
         p {
@@ -135,53 +213,16 @@
             color: #666;
         }
 
-        .empty-message {
-            text-align: center;
-            color: #999;
-            font-size: 18px;
-        }
-
-        .pagination {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .pagination a {
-            text-decoration: none;
-            color: #007bff;
-            padding: 10px;
-            font-weight: bold;
-        }
-
-        .pagination a.active {
-            font-weight: bold;
-            color: #0056b3;
-        }
-
-        .pagination span.current {
-            font-weight: bold;
-            margin: 0 10px;
-        }
-
-        .pagination span.step-links a {
-            text-decoration: none;
-            color: #007bff;
-            padding: 10px;
-            font-weight: bold;
-        }
-
-        .pagination span.step-links a:hover {
-            color: #0056b3;
-        }
-
         .rating {
             display: flex;
             gap: 5px;
             align-items: center;
+            justify-content: center;
+            margin: 10px 0;
         }
 
         .rating .star {
-            font-size: 24px;
+            font-size: 26px;
             cursor: pointer;
             transition: color 0.3s;
         }
@@ -194,7 +235,6 @@
             color: #ddd;
         }
 
-        .rating .star:hover,
         .rating .star.hover {
             color: #ffc107;
         }
@@ -206,9 +246,9 @@
 
         .rating-form select,
         .message-form button {
-            padding: 5px;
+            padding: 10px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
         }
 
@@ -216,11 +256,54 @@
             background-color: #007bff;
             color: #fff;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
         .message-form button:hover {
             background-color: #0056b3;
+            transform: scale(1.02);
+        }
+
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            text-decoration: none;
+            color: #007bff;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .pagination a:hover {
+            color: #0056b3;
+        }
+
+        .pagination a.active {
+            font-weight: bold;
+            color: #0056b3;
+        }
+
+        .pagination span.current {
+            font-weight: bold;
+            margin: 0 10px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .pagination span.step-links a {
+            text-decoration: none;
+            color: #007bff;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .pagination span.step-links a:hover {
+            color: #0056b3;
         }
     </style>
 </head>
@@ -243,97 +326,107 @@
     <main>
         <h1>All Listings</h1>
 
-        <!-- Фильтрация -->
-        <div class="filters">
-            <form method="get" action="{% url 'all_listings' %}">
-                <label for="location">City:</label>
-                <select name="location" id="location">
-                    <option value="">All Cities</option>
-                    {% for city in cities %}
-                        <option value="{{ city.id }}" {% if location == city.id|stringformat:"s" %}selected{% endif %}>{{ city.name }}</option>
-                    {% endfor %}
-                </select>
+        <!-- Фильтры и сортировка -->
+        <div class="filter-container">
+            <div class="filter-card">
+                <form method="get" action="{% url 'all_listings' %}">
+                    <label for="location">Location:</label>
+                    <select name="location" id="location">
+                        <option value="">All Cities</option>
+                        {% for city in cities %}
+                            <option value="{{ city.id }}" {% if location == city.id|stringformat:"s" %}selected{% endif %}>{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
 
-                <label for="min_price">Min Price:</label>
-                <input type="number" name="min_price" id="min_price" value="{{ min_price }}" placeholder="0">
+                    <label for="min_price">Price Range:</label>
+                    <div class="range-slider">
+                        <input type="range" id="min_price" name="min_price" min="0" max="10000" value="{{ min_price }}" step="100">
+                        <input type="range" id="max_price" name="max_price" min="0" max="10000" value="{{ max_price }}" step="100">
+                    </div>
+                    <div class="price-values">
+                        <span>Min: $<span id="min-price-value">{{ min_price }}</span></span>
+                        <span>Max: $<span id="max-price-value">{{ max_price }}</span></span>
+                    </div>
 
-                <label for="max_price">Max Price:</label>
-                <input type="number" name="max_price" id="max_price" value="{{ max_price }}" placeholder="10000">
+                    <label for="date-range">Available Dates:</label>
+                    <input type="date" name="start_date" id="start_date" value="{{ start_date }}">
+                    <input type="date" name="end_date" id="end_date" value="{{ end_date }}">
 
-                <label for="start_date">Start Date:</label>
-                <input type="date" name="start_date" id="start_date" value="{{ start_date }}">
+                    <button type="submit">Apply Filters</button>
+                </form>
+            </div>
 
-                <label for="end_date">End Date:</label>
-                <input type="date" name="end_date" id="end_date" value="{{ end_date }}">
+            <div class="sort-card">
+                <form method="get" action="{% url 'all_listings' %}">
+                    <label for="sort_by">Sort by:</label>
+                    <select name="sort_by" id="sort_by">
+                        <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Date Posted (Old to New)</option>
+                        <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Date Posted (New to Old)</option>
+                        <option value="price" {% if sort_by == 'price' %}selected{% endif %}>Price (Low to High)</option>
+                        <option value="-price" {% if sort_by == '-price' %}selected{% endif %}>Price (High to Low)</option>
+                    </select>
 
-                <button type="submit">Apply Filters</button>
-            </form>
-        </div>
+                    <label for="items_per_page">Items per page:</label>
+                    <select name="items_per_page" id="items_per_page">
+                        <option value="4" {% if items_per_page == 4 %}selected{% endif %}>4</option>
+                        <option value="8" {% if items_per_page == 8 %}selected{% endif %}>8</option>
+                        <option value="16" {% if items_per_page == 16 %}selected{% endif %}>16</option>
+                    </select>
 
-        <!-- Сортировка -->
-        <div class="sorting">
-            <form method="get" action="{% url 'all_listings' %}">
-                <label for="sort_by">Sort by:</label>
-                <select name="sort_by" id="sort_by">
-                    <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Date Posted (Old to New)</option>
-                    <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Date Posted (New to Old)</option>
-                    <option value="price" {% if sort_by == 'price' %}selected{% endif %}>Price (Low to High)</option>
-                    <option value="-price" {% if sort_by == '-price' %}selected{% endif %}>Price (High to Low)</option>
-                </select>
-
-                <label for="items_per_page">Items per page:</label>
-                <select name="items_per_page" id="items_per_page">
-                    <option value="5" {% if items_per_page == 5 %}selected{% endif %}>5</option>
-                    <option value="10" {% if items_per_page == 10 %}selected{% endif %}>10</option>
-                    <option value="20" {% if items_per_page == 20 %}selected{% endif %}>20</option>
-                </select>
-
-                <button type="submit">Apply</button>
-            </form>
+                    <button type="submit">Apply Sorting</button>
+                </form>
+            </div>
         </div>
 
         <!-- Список объявлений -->
         <ul>
             {% for listing in page.object_list %}
                 <li>
-                    <h2>{{ listing.title }}</h2>
-                    <p><strong>Description:</strong> {{ listing.description }}</p>
-                    <p><strong>Location:</strong> {{ listing.location.name }}</p>
-                    <p><strong>Price:</strong> ${{ listing.price }}</p>
-                    <p><strong>Available from:</strong> {{ listing.start_date }}</p>
-                    <p><strong>Available to:</strong> {{ listing.end_date }}</p>
+                    <div class="listing-card">
+                        <!-- Изображение объявления -->
+                        {% if listing.image %}
+                            <img src="{{ listing.image.url }}" alt="Listing image" class="listing-image">
+                        {% endif %}
 
-                    <!-- Рейтинг -->
-                    <p>
-                        Rating:
-                        <span class="rating">
-                            {% for i in "12345" %}
-                                <span class="star {% if i <= listing.rating|floatformat:0 %}full{% else %}empty{% endif %}">&#9733;</span>
-                            {% endfor %}
-                            ({{ listing.rating|floatformat:1 }} / 5)
-                        </span>
-                    </p>
+                        <h2>{{ listing.title }}</h2>
+                        <p><strong>Description:</strong> {{ listing.description }}</p>
+                        <p><strong>Location:</strong> {{ listing.location.name }}</p>
+                        <p><strong>Price:</strong> ${{ listing.price }}</p>
+                        <p><strong>Available from:</strong> {{ listing.start_date }}</p>
+                        <p><strong>Available to:</strong> {{ listing.end_date }}</p>
 
-                    <!-- Форма для оставления рейтинга -->
-                    <form method="post" action="{% url 'rate_listing' listing.id %}" class="rating-form">
-                        {% csrf_token %}
-                        <label for="rating">Rate this listing:</label>
-                        <select name="rating" id="rating" required>
-                            <option value="1">1 Star</option>
-                            <option value="2">2 Stars</option>
-                            <option value="3">3 Stars</option>
-                            <option value="4">4 Stars</option>
-                            <option value="5">5 Stars</option>
-                        </select>
-                        <button type="submit">Submit Rating</button>
-                    </form>
+                        <!-- Рейтинг -->
+                        <p>
+                            Rating:
+                            <span class="rating">
+                                {% for i in "12345" %}
+                                    <span class="star {% if i <= listing.rating|floatformat:0 %}full{% else %}empty{% endif %}">&#9733;</span>
+                                {% endfor %}
+                                ({{ listing.rating|floatformat:1 }} / 5)
+                            </span>
+                        </p>
 
-                    <!-- Форма для отправки сообщения -->
-                    <form method="post" action="{% url 'send_message' recipient_id=listing.owner.id %}" class="message-form">
-                        {% csrf_token %}
-                        <input type="hidden" name="listing_id" value="{{ listing.id }}">
-                        <button type="submit">Send Message</button>
-                    </form>
+                        <!-- Форма для оставления рейтинга -->
+                        <form method="post" action="{% url 'rate_listing' listing.id %}" class="rating-form">
+                            {% csrf_token %}
+                            <label for="rating">Rate this listing:</label>
+                            <select name="rating" id="rating" required>
+                                <option value="1">1 Star</option>
+                                <option value="2">2 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="5">5 Stars</option>
+                            </select>
+                            <button type="submit">Submit Rating</button>
+                        </form>
+
+                        <!-- Форма для отправки сообщения -->
+                        <form method="post" action="{% url 'send_message' recipient_id=listing.owner.id %}" class="message-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                            <button type="submit">Send Message</button>
+                        </form>
+                    </div>
                 </li>
             {% empty %}
                 <p class="empty-message">No listings found.</p>
@@ -361,6 +454,21 @@
     </main>
 
     <script>
+        // Slider values update
+        const minPriceInput = document.getElementById('min_price');
+        const maxPriceInput = document.getElementById('max_price');
+        const minPriceValue = document.getElementById('min-price-value');
+        const maxPriceValue = document.getElementById('max-price-value');
+
+        minPriceInput.addEventListener('input', function () {
+            minPriceValue.textContent = minPriceInput.value;
+        });
+
+        maxPriceInput.addEventListener('input', function () {
+            maxPriceValue.textContent = maxPriceInput.value;
+        });
+
+        // Rating stars functionality
         document.querySelectorAll('.rating .star').forEach(star => {
             star.addEventListener('mouseover', function () {
                 const ratingValue = this.textContent;
@@ -378,7 +486,7 @@
             star.addEventListener('click', function () {
                 const ratingValue = this.textContent;
                 const form = this.closest('li').querySelector('.rating-form');
-                form.querySelector('select[name="rating"]').value = ratingValue;
+                form.querySelector('select').value = ratingValue;
                 form.submit();
             });
         });
