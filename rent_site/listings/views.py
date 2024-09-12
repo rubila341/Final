@@ -8,9 +8,10 @@ from django.http import HttpResponseNotAllowed, JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
+from datetime import datetime
 
-from .forms import UserRegisterForm, ListingForm, RatingForm, MessageForm
-from .models import Listing, Booking, Rating, City, User, Message, Chat
+from .forms import UserRegisterForm, ListingForm, RatingForm, MessageForm, ReviewForm, BookingForm
+from .models import Listing, Booking, Rating, City, User, Message, Chat, Review
 
 # Политика конфиденциальности
 def privacy_policy(request):
@@ -167,8 +168,14 @@ def all_listings(request):
     if max_price:
         listings = listings.filter(price__lte=max_price)
 
+    # Фильтрация по датам
     if start_date and end_date:
-        listings = listings.filter(available_from__gte=start_date, available_to__lte=end_date)
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            listings = listings.filter(created_at__gte=start_date, created_at__lte=end_date)
+        except ValueError:
+            pass
 
     listings = listings.order_by(sort_by)
     paginator = Paginator(listings, items_per_page)
@@ -238,8 +245,7 @@ def rate_listing(request, id):
             listing.update_rating()  # Убедитесь, что этот метод существует
             return JsonResponse({'success': True, 'new_rating': listing.rating})
         return JsonResponse({'success': False, 'errors': form.errors}, status=400)
-    return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=405)
-
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
 
 # Представление для страницы контактов
 def contact(request):
@@ -258,7 +264,6 @@ def contact(request):
         form = MessageForm()
     return render(request, 'listings/contact.html', {'form': form})
 
-
 # Функция для отправки сообщения
 @login_required
 def send_message(request, recipient_id):
@@ -276,7 +281,6 @@ def send_message(request, recipient_id):
     else:
         form = MessageForm()
     return render(request, 'listings/send_message.html', {'form': form, 'recipient': recipient})
-
 
 # Представление для списка чатов
 @login_required
@@ -304,7 +308,6 @@ def chat_list(request):
 
     return render(request, 'listings/chat_list.html', {'chats': chat_objects})
 
-
 # Представление для чата
 @login_required
 def chat_view(request, recipient_id):
@@ -330,3 +333,57 @@ def chat_view(request, recipient_id):
         'messages': messages,
         'form': form
     })
+
+# Добавление отзыва
+@login_required
+def add_review(request, listing_id):
+    listing = get_object_or_404(Listing, id=listing_id)
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.listing = listing
+            review.user = request.user
+            review.save()
+            return redirect('listing_detail', id=listing_id)
+    else:
+        form = ReviewForm()
+    return render(request, 'listings/add_review.html', {'form': form})
+
+# Просмотр отзывов
+@login_required
+def view_reviews(request, listing_id):
+    listing = get_object_or_404(Listing, id=listing_id)
+    reviews = listing.reviews.all()
+    return render(request, 'listings/view_reviews.html', {'listing': listing, 'reviews': reviews})
+
+# Бронирование
+@login_required
+def make_booking(request, listing_id):
+    listing = get_object_or_404(Listing, id=listing_id)
+    if request.method == 'POST':
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.listing = listing
+            booking.user = request.user
+            booking.status = 'pending'
+            booking.save()
+            return redirect('profile')
+    else:
+        form = BookingForm()
+    return render(request, 'listings/make_booking.html', {'form': form, 'listing': listing})
+
+# Управление бронированием
+@login_required
+def manage_booking(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'approve':
+            booking.status = 'approved'
+        elif action == 'reject':
+            booking.status = 'rejected'
+        booking.save()
+        return redirect('profile')
+    return render(request, 'listings/manage_booking.html', {'booking': booking})

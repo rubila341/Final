@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: gunicorn rent_site.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql://ich1:ich1_password_ilovedbs@mysql.itcareerhub.de:3306/310524ptm_rubila341_final

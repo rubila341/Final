@@ -1,0 +1,37 @@
+<!-- manage_bookings.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Bookings</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'manage_bookings' %}">Manage Bookings</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </header>
+
+    <main>
+        <h1>Manage Bookings</h1>
+        <ul>
+            {% for booking in bookings %}
+                <li>
+                    <p><strong>Listing:</strong> {{ booking.listing.title }}</p>
+                    <p><strong>Booking Dates:</strong> {{ booking.start_date }} to {{ booking.end_date }}</p>
+                    <p><strong>Status:</strong> {{ booking.get_status_display }}</p>
+                    <a href="{% url 'update_booking_status' booking.id 'Confirmed' %}">Confirm</a>
+                    <a href="{% url 'update_booking_status' booking.id 'Rejected' %}">Reject</a>
+                </li>
+            {% empty %}
+                <p>No bookings to manage.</p>
+            {% endfor %}
+        </ul>
+    </main>
+</body>
+</html>

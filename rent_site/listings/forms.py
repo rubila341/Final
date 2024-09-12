@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Listing, City, Rating, Message
+from datetime import date
+
+from .models import Listing, City, Rating, Message, Review, Booking
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(
@@ -126,3 +128,56 @@ class MessageForm(forms.ModelForm):
         if not content.strip():
             raise forms.ValidationError("Message content cannot be empty.")
         return content
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.RadioSelect(choices=[(i, f'{i} Star') for i in range(1, 6)]),  # 1-5 stars
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Leave a comment', 'rows': 4}),
+        }
+        labels = {
+            'rating': 'Rate this review',
+            'comment': 'Comment (optional)',
+        }
+        help_texts = {
+            'rating': 'Select a rating from 1 to 5 stars.',
+            'comment': 'Provide additional feedback if you wish.',
+        }
+
+    def clean_rating(self):
+        rating = self.cleaned_data.get('rating')
+        if not (1 <= rating <= 5):
+            raise forms.ValidationError("Rating must be between 1 and 5.")
+        return rating
+
+class BookingForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = ['start_date', 'end_date']
+        widgets = {
+            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
+        labels = {
+            'start_date': 'Start Date',
+            'end_date': 'End Date',
+        }
+        help_texts = {
+            'start_date': 'Select the start date for the booking.',
+            'end_date': 'Select the end date for the booking.',
+        }
+
+    def clean_start_date(self):
+        start_date = self.cleaned_data.get('start_date')
+        if start_date and start_date < date.today():
+            raise forms.ValidationError("Start date cannot be in the past.")
+        return start_date
+
+    def clean_end_date(self):
+        end_date = self.cleaned_data.get('end_date')
+        start_date = self.cleaned_data.get('start_date')
+        if end_date and start_date and end_date <= start_date:
+            raise forms.ValidationError("End date must be after start date.")
+        return end_date

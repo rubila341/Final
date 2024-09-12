@@ -8,6 +8,7 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <style>
+        /* Common Styles */
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f5f5f5;
@@ -122,8 +123,7 @@
             transform: scale(1.02);
         }
 
-        .filter-card .range-slider,
-        .sort-card .range-slider {
+        .range-slider {
             width: 100%;
             margin: 10px 0;
         }
@@ -139,15 +139,7 @@
             cursor: pointer;
         }
 
-        .range-slider input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #007bff;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
+        .range-slider input[type="range"]::-webkit-slider-thumb,
         .range-slider input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
@@ -156,7 +148,7 @@
             cursor: pointer;
         }
 
-        .filter-card .price-values {
+        .price-values {
             display: flex;
             justify-content: space-between;
             font-size: 14px;
@@ -181,6 +173,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             width: 300px;
             transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
         }
 
         li:hover {
@@ -189,7 +182,6 @@
         }
 
         .listing-card {
-            width: 100%;
             text-align: center;
         }
 
@@ -235,31 +227,31 @@
             color: #ddd;
         }
 
-        .rating .star.hover {
-            color: #ffc107;
-        }
-
         .rating-form,
-        .message-form {
+        .message-form,
+        .booking-form {
             margin-top: 10px;
         }
 
         .rating-form select,
-        .message-form button {
+        .message-form button,
+        .booking-form button {
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
         }
 
-        .message-form button {
+        .message-form button,
+        .booking-form button {
             background-color: #007bff;
             color: #fff;
             cursor: pointer;
             transition: background-color 0.3s, transform 0.3s;
         }
 
-        .message-form button:hover {
+        .message-form button:hover,
+        .booking-form button:hover {
             background-color: #0056b3;
             transform: scale(1.02);
         }
@@ -282,11 +274,6 @@
             color: #0056b3;
         }
 
-        .pagination a.active {
-            font-weight: bold;
-            color: #0056b3;
-        }
-
         .pagination span.current {
             font-weight: bold;
             margin: 0 10px;
@@ -304,6 +291,71 @@
 
         .pagination span.step-links a:hover {
             color: #0056b3;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            margin-top: 10px;
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .modal-footer button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .modal-footer button:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
         }
     </style>
 </head>
@@ -325,8 +377,7 @@
 
     <main>
         <h1>All Listings</h1>
-
-        <!-- Фильтры и сортировка -->
+        <!-- Filters and Sorting -->
         <div class="filter-container">
             <div class="filter-card">
                 <form method="get" action="{% url 'all_listings' %}">
@@ -334,14 +385,16 @@
                     <select name="location" id="location">
                         <option value="">All Cities</option>
                         {% for city in cities %}
-                            <option value="{{ city.id }}" {% if location == city.id|stringformat:"s" %}selected{% endif %}>{{ city.name }}</option>
+                            <option value="{{ city.id }}" {% if location == city.id|stringformat:"s" %}selected{% endif %}>
+                                {{ city.name }}
+                            </option>
                         {% endfor %}
                     </select>
 
                     <label for="min_price">Price Range:</label>
                     <div class="range-slider">
-                        <input type="range" id="min_price" name="min_price" min="0" max="10000" value="{{ min_price }}" step="100">
-                        <input type="range" id="max_price" name="max_price" min="0" max="10000" value="{{ max_price }}" step="100">
+                        <input type="range" id="min_price" name="min_price" min="0" max="10000" value="{{ min_price }}" step="100" oninput="updatePriceValues()">
+                        <input type="range" id="max_price" name="max_price" min="0" max="10000" value="{{ max_price }}" step="100" oninput="updatePriceValues()">
                     </div>
                     <div class="price-values">
                         <span>Min: $<span id="min-price-value">{{ min_price }}</span></span>
@@ -378,12 +431,12 @@
             </div>
         </div>
 
-        <!-- Список объявлений -->
+        <!-- Listings -->
         <ul>
             {% for listing in page.object_list %}
                 <li>
                     <div class="listing-card">
-                        <!-- Изображение объявления -->
+                        <!-- Listing Image -->
                         {% if listing.image %}
                             <img src="{{ listing.image.url }}" alt="Listing image" class="listing-image">
                         {% endif %}
@@ -394,8 +447,9 @@
                         <p><strong>Price:</strong> ${{ listing.price }}</p>
                         <p><strong>Available from:</strong> {{ listing.start_date }}</p>
                         <p><strong>Available to:</strong> {{ listing.end_date }}</p>
+                        <p><strong>Date Posted:</strong> {{ listing.created_at|date:"d M Y" }}</p>
 
-                        <!-- Рейтинг -->
+                        <!-- Rating -->
                         <p>
                             Rating:
                             <span class="rating">
@@ -406,7 +460,7 @@
                             </span>
                         </p>
 
-                        <!-- Форма для оставления рейтинга -->
+                        <!-- Rating Form -->
                         <form method="post" action="{% url 'rate_listing' listing.id %}" class="rating-form">
                             {% csrf_token %}
                             <label for="rating">Rate this listing:</label>
@@ -420,77 +474,124 @@
                             <button type="submit">Submit Rating</button>
                         </form>
 
-                        <!-- Форма для отправки сообщения -->
+                        <!-- View Reviews Button -->
+                        <button onclick="openModal('reviews-modal-{{ listing.id }}')">View Reviews</button>
+
+                        <!-- Add Review Button -->
+                        <button onclick="openModal('add-review-modal-{{ listing.id }}')">Add Review</button>
+
+                        <!-- Message Form -->
                         <form method="post" action="{% url 'send_message' recipient_id=listing.owner.id %}" class="message-form">
                             {% csrf_token %}
                             <input type="hidden" name="listing_id" value="{{ listing.id }}">
                             <button type="submit">Send Message</button>
                         </form>
+
+                        <!-- Booking Form -->
+                        <form method="post" action="{% url 'make_booking' listing.id %}" class="booking-form">
+                            {% csrf_token %}
+                            <label for="booking_start_date">Check-in Date:</label>
+                            <input type="date" name="start_date" id="booking_start_date" required>
+
+                            <label for="booking_end_date">Check-out Date:</label>
+                            <input type="date" name="end_date" id="booking_end_date" required>
+
+                            <button type="submit">Book Now</button>
+                        </form>
                     </div>
-                </li>
-            {% empty %}
-                <p class="empty-message">No listings found.</p>
-            {% endfor %}
-        </ul>
 
-        <!-- Пагинация -->
-        <div class="pagination">
-            <span class="step-links">
-                {% if page.has_previous %}
-                    <a href="?page=1{% if location %}&location={{ location }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if items_per_page %}&items_per_page={{ items_per_page }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">&laquo; First</a>
-                    <a href="?page={{ page.previous_page_number }}{% if location %}&location={{ location }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if items_per_page %}&items_per_page={{ items_per_page }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Previous</a>
-                {% endif %}
-
-                <span class="current">
-                    Page {{ page.number }} of {{ page.paginator.num_pages }}.
-                </span>
-
-                {% if page.has_next %}
-                    <a href="?page={{ page.next_page_number }}{% if location %}&location={{ location }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if items_per_page %}&items_per_page={{ items_per_page }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Next</a>
-                    <a href="?page={{ page.paginator.num_pages }}{% if location %}&location={{ location }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}{% if items_per_page %}&items_per_page={{ items_per_page }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if start_date %}&start_date={{ start_date }}{% endif %}{% if end_date %}&end_date={{ end_date }}{% endif %}">Last &raquo;</a>
-                {% endif %}
-            </span>
+                    <!-- Reviews Modal -->
+<div id="reviews-modal-{{ listing.id }}" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Reviews for "{{ listing.title }}"</h2>
+            <button class="modal-close" onclick="closeModal('reviews-modal-{{ listing.id }}')">&times;</button>
         </div>
-    </main>
+        <div class="modal-body">
+            {% if listing.reviews.count > 0 %}
+                <ul>
+                    {% for review in listing.reviews.all %}
+                        <li>
+                            <strong>{{ review.user.username }}:</strong>
+                            <p>{{ review.text }}</p> <!-- Отображаем текст отзыва -->
+                            <p>Rating: {{ review.rating }} / 5</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No reviews yet.</p>
+            {% endif %}
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal('reviews-modal-{{ listing.id }}')">Close</button>
+        </div>
+    </div>
+</div>
 
-    <script>
-        // Slider values update
-        const minPriceInput = document.getElementById('min_price');
-        const maxPriceInput = document.getElementById('max_price');
-        const minPriceValue = document.getElementById('min-price-value');
-        const maxPriceValue = document.getElementById('max-price-value');
+                                <!-- Add Review Modal -->
+                                <div id="add-review-modal-{{ listing.id }}" class="modal">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h2>Add Review for "{{ listing.title }}"</h2>
+                                            <button class="modal-close" onclick="closeModal('add-review-modal-{{ listing.id }}')">&times;</button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="post" action="{% url 'add_review' listing.id %}">
+                                                {% csrf_token %}
+                                                <label for="review-text">Review:</label>
+                                                <textarea name="review_text" id="review-text" rows="4" required></textarea>
 
-        minPriceInput.addEventListener('input', function () {
-            minPriceValue.textContent = minPriceInput.value;
-        });
+                                                <label for="review-rating">Rating:</label>
+                                                <select name="review_rating" id="review-rating" required>
+                                                    <option value="1">1 Star</option>
+                                                    <option value="2">2 Stars</option>
+                                                    <option value="3">3 Stars</option>
+                                                    <option value="4">4 Stars</option>
+                                                    <option value="5">5 Stars</option>
+                                                </select>
 
-        maxPriceInput.addEventListener('input', function () {
-            maxPriceValue.textContent = maxPriceInput.value;
-        });
+                                                <button type="submit">Submit Review</button>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button onclick="closeModal('add-review-modal-{{ listing.id }}')">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </ul>
 
-        // Rating stars functionality
-        document.querySelectorAll('.rating .star').forEach(star => {
-            star.addEventListener('mouseover', function () {
-                const ratingValue = this.textContent;
-                this.parentElement.querySelectorAll('.star').forEach(s => {
-                    s.classList.toggle('hover', s.textContent <= ratingValue);
-                });
-            });
+                        <!-- Pagination -->
+                        <div class="pagination">
+                            <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+                            <div class="pagination-controls">
+                                {% if page.has_previous %}
+                                    <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page.previous_page_number }}">Previous</a>
+                                {% endif %}
 
-            star.addEventListener('mouseout', function () {
-                this.parentElement.querySelectorAll('.star').forEach(s => {
-                    s.classList.remove('hover');
-                });
-            });
+                                {% if page.has_next %}
+                                    <a href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}page={{ page.next_page_number }}">Next</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </main>
 
-            star.addEventListener('click', function () {
-                const ratingValue = this.textContent;
-                const form = this.closest('li').querySelector('.rating-form');
-                form.querySelector('select').value = ratingValue;
-                form.submit();
-            });
-        });
-    </script>
-</body>
+                <script>
+                    function openModal(modalId) {
+                        document.getElementById(modalId).style.display = 'block';
+                    }
 
-</html>
+                    function closeModal(modalId) {
+                        document.getElementById(modalId).style.display = 'none';
+                    }
+
+                    function updatePriceValues() {
+                        const minPriceValue = document.getElementById('min_price').value;
+                        const maxPriceValue = document.getElementById('max_price').value;
+                        document.getElementById('min-price-value').textContent = minPriceValue;
+                        document.getElementById('max-price-value').textContent = maxPriceValue;
+                    }
+                </script>
+            </body>
+        </html>

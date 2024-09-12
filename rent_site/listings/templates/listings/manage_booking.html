@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Manage Booking</h2>
+<p>Booking for {{ booking.listing.title }} from {{ booking.start_date }} to {{ booking.end_date }}</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="action" value="approve">Approve</button>
+    <button type="submit" name="action" value="reject">Reject</button>
+</form>
+{% endblock %}

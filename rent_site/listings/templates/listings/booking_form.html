@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Book a Listing</h2>
+    <form method="post" action="{% url 'booking_create' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.non_field_errors }}
+            <div class="form-group">
+                {{ form.start_date.label_tag }}
+                {{ form.start_date|add_class:"form-control" }}
+                {{ form.start_date.errors }}
+            </div>
+            <div class="form-group">
+                {{ form.end_date.label_tag }}
+                {{ form.end_date|add_class:"form-control" }}
+                {{ form.end_date.errors }}
+            </div>
+            <div class="form-group">
+                {{ form.guests.label_tag }}
+                {{ form.guests|add_class:"form-control" }}
+                {{ form.guests.errors }}
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Booking</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

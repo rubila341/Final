@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <header>
+        <!-- Ваш хедер -->
+    </header>
+
+    <main>
+        <h1>Booking Confirmation</h1>
+        <form method="post">
+            {% csrf_token %}
+            <label for="booking_start_date">Booking Start Date:</label>
+            <input type="date" id="booking_start_date" name="booking_start_date" required>
+
+            <label for="booking_end_date">Booking End Date:</label>
+            <input type="date" id="booking_end_date" name="booking_end_date" required>
+
+            <button type="submit">Confirm Booking</button>
+        </form>
+    </main>
+
+    <footer>
+        <!-- Ваш футер -->
+    </footer>
+</body>
+</html>

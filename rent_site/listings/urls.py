@@ -22,13 +22,17 @@ urlpatterns = [
     path('privacy_policy/', views.privacy_policy, name='privacy_policy'),
     path('rate_listing/<int:id>/', views.rate_listing, name='rate_listing'),
 
-    # Путь для чатов
+    # Пути для отзывов
+    path('listing/<int:listing_id>/add_review/', views.add_review, name='add_review'),
+    path('listing/<int:listing_id>/reviews/', views.view_reviews, name='view_reviews'),
+
+    # Пути для бронирования
+    path('listing/<int:listing_id>/book/', views.make_booking, name='make_booking'),
+    path('booking/<int:booking_id>/manage/', views.manage_booking, name='manage_booking'),
+
+    # Пути для чатов
     path('chat/', views.chat_list, name='chat_list'),
-
-    # Путь для чата между пользователями
     path('chat/<int:recipient_id>/', views.chat_view, name='chat_view'),
-
-    # Путь для отправки сообщений
     path('send_message/<int:recipient_id>/', views.send_message, name='send_message'),
 
     # Путь для редактирования объявления
