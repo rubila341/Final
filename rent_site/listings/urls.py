@@ -1,10 +1,17 @@
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import path, include
+from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
+    # Пути для Django Jet
+    path('jet/', include('jet.urls', 'jet')),
+
+    # Админка Django
+    path('admin/', admin.site.urls),
+
     # Основные пути
     path('', views.home, name='home'),
     path('register/', views.register, name='register'),

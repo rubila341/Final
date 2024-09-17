@@ -7,13 +7,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-xhigpsi^68!yw#h@p3!d1=_(bt_%*j87i&+sogvhik4osu=^lc'  # Consider using environment variables for this in production
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True  # Set to False in production
 
 # Define allowed hosts. For production, specify your domain or IP.
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Replace with your domain names or IP addresses for security
 
 # Application definition
 INSTALLED_APPS = [
+    'jet',  # Jet должен быть в начале для переопределения админки
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -90,8 +91,9 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'  # Ensure the leading slash is present
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Directory for project-wide static files
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Static files collected here for production
 
 # Media files (Uploaded files)
 MEDIA_URL = '/media/'
@@ -106,16 +108,26 @@ LOGOUT_REDIRECT_URL = '/'
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True  # For development only; use CORS_ALLOWED_ORIGINS in production
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:8000",
-#     "http://127.0.0.1:8000",
-# ]
 
 # Cookie settings
-SESSION_COOKIE_SAMESITE = 'None'  # Adjust based on your needs
+SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True  # Set to True if you're using HTTPS
-CSRF_COOKIE_SAMESITE = 'None'  # Adjust as needed
+CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True  # Set to True if you're using HTTPS
 
 # Login URL configuration
-LOGIN_URL = '/login/'  # URL where users will be redirected to log in
+LOGIN_URL = '/login/'
+
+# Django Jet configuration (optional customization)
+JET_THEMES = [
+    {
+        'theme': 'default',  # You can customize themes here
+        'color': '#47bac1',  # Main color
+    },
+]
+
+# Additional security settings for production (recommended)
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True

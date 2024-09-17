@@ -17,17 +17,39 @@ class ListingAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': ('title', 'description', 'location', 'price', 'rooms',
-                       'property_type', 'is_active', 'owner', 'image')
+                       'property_type', 'is_active', 'owner', 'image'),
+            'description': 'General information about the listing. All fields are mandatory.'
         }),
         ('Dates', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',),
+            'description': 'The dates when the listing was created and last updated.'
         }),
         ('Rating', {
             'fields': ('rating', 'review_count'),
             'classes': ('collapse',),
+            'description': 'The average rating and the total number of reviews for this listing.'
         }),
     )
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+        help_texts = {
+            'title': 'The title of the listing.',
+            'description': 'A description of the listing.',
+            'location': 'The location of the property.',
+            'price': 'The price of the property.',
+            'rooms': 'The number of rooms.',
+            'property_type': 'The type of property.',
+            'is_active': 'Whether the listing is active.',
+            'owner': 'The owner of the property.',
+            'image': 'An image of the property.',
+            'rating': 'The average rating of the property.',
+            'review_count': 'The number of reviews.'
+        }
+        if db_field.name in help_texts:
+            formfield.help_text = help_texts[db_field.name]
+        return formfield
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
@@ -53,41 +75,59 @@ class BookingAdmin(admin.ModelAdmin):
 
     reject_bookings.short_description = 'Reject selected bookings'
 
-    # Remove is_active_booking from list_display and list_filter
-    def is_active_booking(self, obj):
-        return obj.status == 'Approved'
-
-    is_active_booking.boolean = True
-
     fieldsets = (
         (None, {
-            'fields': ('user', 'listing', 'start_date', 'end_date', 'status', 'booking_number')
+            'fields': ('user', 'listing', 'start_date', 'end_date', 'status', 'booking_number'),
+            'description': 'Booking details, including the user, listing, and status.'
         }),
         ('Booking Date', {
             'fields': ('created_at',),
             'classes': ('collapse',),
+            'description': 'The date when the booking was created.'
         }),
     )
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+        help_texts = {
+            'user': 'The user who made the booking.',
+            'listing': 'The property being booked.',
+            'start_date': 'The start date of the booking.',
+            'end_date': 'The end date of the booking.',
+            'status': 'The status of the booking.',
+            'booking_number': 'The booking number.',
+            'created_at': 'The date when the booking was created.'
+        }
+        if db_field.name in help_texts:
+            formfield.help_text = help_texts[db_field.name]
+        return formfield
+
 @admin.register(City)
 class CityAdmin(admin.ModelAdmin):
-    list_display = (
-        'name', 'country'
-    )
+    list_display = ('name', 'country')
     list_display_links = ('name',)
     search_fields = ('name', 'country')
     ordering = ('name',)
     fieldsets = (
         (None, {
-            'fields': ('name', 'country')
+            'fields': ('name', 'country'),
+            'description': 'City name and country.'
         }),
     )
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+        help_texts = {
+            'name': 'The name of the city.',
+            'country': 'The country where the city is located.'
+        }
+        if db_field.name in help_texts:
+            formfield.help_text = help_texts[db_field.name]
+        return formfield
+
 @admin.register(Rating)
 class RatingAdmin(admin.ModelAdmin):
-    list_display = (
-        'listing', 'user', 'rating', 'created_at', 'updated_at'
-    )
+    list_display = ('listing', 'user', 'rating', 'created_at', 'updated_at')
     list_display_links = ('listing', 'user')
     list_filter = ('listing', 'user', 'rating', 'created_at')
     search_fields = ('listing__title', 'user__username', 'rating')
@@ -95,19 +135,33 @@ class RatingAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
         (None, {
-            'fields': ('listing', 'user', 'rating', 'comment')
+            'fields': ('listing', 'user', 'rating', 'comment'),
+            'description': 'The rating and optional comment from the user.'
         }),
         ('Dates', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',),
+            'description': 'Timestamps for when the rating was created and updated.'
         }),
     )
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+        help_texts = {
+            'listing': 'The property being rated.',
+            'user': 'The user who gave the rating.',
+            'rating': 'The rating given by the user.',
+            'comment': 'Optional comment from the user.',
+            'created_at': 'The date when the rating was created.',
+            'updated_at': 'The date when the rating was last updated.'
+        }
+        if db_field.name in help_texts:
+            formfield.help_text = help_texts[db_field.name]
+        return formfield
+
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = (
-        'listing', 'user', 'rating', 'created_at', 'updated_at'
-    )
+    list_display = ('listing', 'user', 'rating', 'created_at', 'updated_at')
     list_display_links = ('listing', 'user')
     list_filter = ('listing', 'user', 'rating', 'created_at')
     search_fields = ('listing__title', 'user__username', 'comment')
@@ -115,19 +169,33 @@ class ReviewAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
         (None, {
-            'fields': ('listing', 'user', 'rating', 'comment')
+            'fields': ('listing', 'user', 'rating', 'comment'),
+            'description': 'The review details, including the user rating and comment.'
         }),
         ('Dates', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',),
+            'description': 'Timestamps for when the review was created and updated.'
         }),
     )
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+        help_texts = {
+            'listing': 'The property being reviewed.',
+            'user': 'The user who left the review.',
+            'rating': 'The rating given in the review.',
+            'comment': 'The comment provided in the review.',
+            'created_at': 'The date when the review was created.',
+            'updated_at': 'The date when the review was last updated.'
+        }
+        if db_field.name in help_texts:
+            formfield.help_text = help_texts[db_field.name]
+        return formfield
+
 @admin.register(Chat)
 class ChatAdmin(admin.ModelAdmin):
-    list_display = (
-        'name', 'created_at'
-    )
+    list_display = ('name', 'created_at')
     list_display_links = ('name',)
     search_fields = ('name', 'participants__username')
     ordering = ('-created_at',)
@@ -135,13 +203,26 @@ class ChatAdmin(admin.ModelAdmin):
     filter_horizontal = ('participants',)
     fieldsets = (
         (None, {
-            'fields': ('name', 'participants')
+            'fields': ('name', 'participants'),
+            'description': 'Chat name and the list of participants.'
         }),
         ('Dates', {
             'fields': ('created_at',),
             'classes': ('collapse',),
+            'description': 'Timestamp for when the chat was created.'
         }),
     )
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+        help_texts = {
+            'name': 'The name of the chat.',
+            'participants': 'The participants in the chat.',
+            'created_at': 'The date when the chat was created.'
+        }
+        if db_field.name in help_texts:
+            formfield.help_text = help_texts[db_field.name]
+        return formfield
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
@@ -155,45 +236,28 @@ class MessageAdmin(admin.ModelAdmin):
     readonly_fields = ('sent_at',)
     fieldsets = (
         (None, {
-            'fields': ('sender', 'receiver', 'chat', 'listing', 'content', 'file', 'is_read')
+            'fields': ('sender', 'receiver', 'chat', 'listing', 'content', 'file', 'is_read'),
+            'description': 'Message details, including sender, receiver, content, and file attachment.'
         }),
         ('Dates', {
             'fields': ('sent_at',),
             'classes': ('collapse',),
+            'description': 'Timestamp for when the message was sent.'
         }),
     )
 
-@admin.register(UserActivity)
-class UserActivityAdmin(admin.ModelAdmin):
-    list_display = (
-        'user', 'action', 'timestamp'
-    )
-    list_display_links = ('user',)
-    list_filter = ('user', 'action', 'timestamp')
-    search_fields = ('user__username', 'action')
-    ordering = ('-timestamp',)
-    readonly_fields = ('timestamp',)
-    fieldsets = (
-        (None, {
-            'fields': ('user', 'action', 'details')
-        }),
-        ('Timestamp', {
-            'fields': ('timestamp',),
-            'classes': ('collapse',),
-        }),
-    )
-
-@admin.register(Discount)
-class DiscountAdmin(admin.ModelAdmin):
-    list_display = (
-        'listing', 'discount_percentage', 'start_date', 'end_date', 'is_active'
-    )
-    list_display_links = ('listing',)
-    list_filter = ('listing', 'is_active', 'start_date', 'end_date')
-    search_fields = ('listing__title',)
-    ordering = ('-start_date',)
-    fieldsets = (
-        (None, {
-            'fields': ('listing', 'discount_percentage', 'start_date', 'end_date', 'is_active')
-        }),
-    )
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+        help_texts = {
+            'sender': 'The sender of the message.',
+            'receiver': 'The receiver of the message.',
+            'chat': 'The chat in which the message was sent.',
+            'listing': 'The property related to the message.',
+            'content': 'The content of the message.',
+            'file': 'Attached file (if any).',
+            'is_read': 'Whether the message has been read.',
+            'sent_at': 'The date and time the message was sent.'
+        }
+        if db_field.name in help_texts:
+            formfield.help_text = help_texts[db_field.name]
+        return formfield
