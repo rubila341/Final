@@ -5,15 +5,17 @@ from datetime import date
 
 from .models import Listing, City, Rating, Message, Review, Booking
 
+# Форма для регистрации нового пользователя
 class UserRegisterForm(UserCreationForm):
+    # Поле для ввода адреса электронной почты
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email address'})
     )
 
     class Meta:
-        model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        model = User# Модель, с которой связана форма
+        fields = ['username', 'email', 'password1', 'password2']# Поля, которые будут отображаться в форме
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
             'password1': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
@@ -25,19 +27,25 @@ class UserRegisterForm(UserCreationForm):
             'password2': 'Enter the same password as above, for verification.',
         }
 
+    # Валидация поля имени пользователя
     def clean_username(self):
         username = self.cleaned_data.get('username')
+        # Проверяем, существует ли уже пользователь с таким именем
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("This username is already taken.")
         return username
 
+    # Валидация поля электронной почты
     def clean_email(self):
+        # Проверяем, существует ли уже пользователь с таким адресом электронной почты
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("This email address is already in use.")
         return email
 
+# Форма для добавления нового объявления
 class ListingForm(forms.ModelForm):
+    # Поле выбора города из существующих
     location = forms.ModelChoiceField(
         queryset=City.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control'}),
@@ -74,22 +82,27 @@ class ListingForm(forms.ModelForm):
             'image': 'Upload an image of the property.',
         }
 
+    # Валидация поля цены
     def clean_price(self):
         price = self.cleaned_data.get('price')
+        # Проверяем, чтобы цена была больше нуля
         if price <= 0:
             raise forms.ValidationError("Price must be greater than zero.")
         return price
 
+    # Валидация поля количества комнат
     def clean_rooms(self):
+        # Проверяем, чтобы количество комнат было больше нуля
         rooms = self.cleaned_data.get('rooms')
         if rooms <= 0:
             raise forms.ValidationError("Number of rooms must be greater than zero.")
         return rooms
 
+# Форма для выставления оценок
 class RatingForm(forms.ModelForm):
     class Meta:
         model = Rating
-        fields = ['rating', 'comment']
+        fields = ['rating', 'comment']# Поля, которые будут отображаться в форме
         widgets = {
             'rating': forms.RadioSelect(choices=[(i, f'{i} Star') for i in range(1, 6)]),  # 1-5 stars
             'comment': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Leave a comment', 'rows': 4}),
@@ -103,12 +116,15 @@ class RatingForm(forms.ModelForm):
             'comment': 'Provide additional feedback if you wish.',
         }
 
+    # Валидация поля оценки
     def clean_rating(self):
         rating = self.cleaned_data.get('rating')
+        # Проверяем, чтобы оценка была в диапазоне от 1 до 5
         if not (1 <= rating <= 5):
             raise forms.ValidationError("Rating must be between 1 and 5.")
         return rating
 
+# Форма для отправки сообщений
 class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
@@ -123,12 +139,15 @@ class MessageForm(forms.ModelForm):
             'content': 'Write your message to the listing owner here.',
         }
 
+    # Валидация поля содержимого сообщения
     def clean_content(self):
         content = self.cleaned_data.get('content')
+        # Проверяем, чтобы содержание сообщения не было пустым
         if not content.strip():
             raise forms.ValidationError("Message content cannot be empty.")
         return content
 
+# Форма для написания отзывов
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
@@ -146,12 +165,15 @@ class ReviewForm(forms.ModelForm):
             'comment': 'Provide additional feedback if you wish.',
         }
 
+    # Валидация поля оценки
     def clean_rating(self):
         rating = self.cleaned_data.get('rating')
+        # Проверяем, чтобы оценка была в диапазоне от 1 до 5
         if not (1 <= rating <= 5):
             raise forms.ValidationError("Rating must be between 1 and 5.")
         return rating
 
+# Форма для бронирования
 class BookingForm(forms.ModelForm):
     class Meta:
         model = Booking
@@ -169,15 +191,19 @@ class BookingForm(forms.ModelForm):
             'end_date': 'Select the end date for the booking.',
         }
 
+    # Валидация поля даты начала
     def clean_start_date(self):
         start_date = self.cleaned_data.get('start_date')
+        # Проверяем, чтобы дата начала не была в прошлом
         if start_date and start_date < date.today():
             raise forms.ValidationError("Start date cannot be in the past.")
         return start_date
 
+    # Валидация поля даты окончания
     def clean_end_date(self):
         end_date = self.cleaned_data.get('end_date')
         start_date = self.cleaned_data.get('start_date')
+        # Проверяем, чтобы дата окончания была после даты начала
         if end_date and start_date and end_date <= start_date:
             raise forms.ValidationError("End date must be after start date.")
         return end_date

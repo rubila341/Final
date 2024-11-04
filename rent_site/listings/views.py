@@ -369,7 +369,7 @@ def make_booking(request, listing_id):
             booking.user = request.user
             booking.status = 'pending'
             booking.save()
-            return redirect('profile')
+            return redirect('bookings')
     else:
         form = BookingForm()
     return render(request, 'listings/make_booking.html', {'form': form, 'listing': listing})

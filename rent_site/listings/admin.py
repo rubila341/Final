@@ -1,19 +1,27 @@
 from django.contrib import admin
 from .models import Listing, Booking, City, Rating, Review, Chat, Message, UserActivity, Discount
 
+# Регистрация модели Listing в админ-панели с пользовательским классом админки
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
+    # Указываем, какие поля будут отображаться в списке объектов
     list_display = (
         'title', 'location', 'price', 'rooms', 'property_type',
         'is_active', 'created_at', 'updated_at', 'owner', 'rating', 'review_count'
     )
+    # Указываем, какие поля можно кликнуть для перехода к редактированию
     list_display_links = ('title', 'location')
+    # Добавляем фильтры для упрощения поиска
     list_filter = (
         'property_type', 'location', 'is_active', 'created_at', 'updated_at'
     )
+    # Указываем поля для поиска
     search_fields = ('title', 'description', 'location__name', 'owner__username')
+    # Указываем порядок сортировки по дате создания
     ordering = ('-created_at',)
+    # Указываем поля, которые будут доступны только для чтения
     readonly_fields = ('created_at', 'updated_at')
+    # Определяем, как будут организованы поля в форме редактирования
     fieldsets = (
         (None, {
             'fields': ('title', 'description', 'location', 'price', 'rooms',
@@ -32,6 +40,7 @@ class ListingAdmin(admin.ModelAdmin):
         }),
     )
 
+    # Метод для настройки текстов подсказок для полей формы
     def formfield_for_dbfield(self, db_field, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, **kwargs)
         help_texts = {
@@ -50,19 +59,20 @@ class ListingAdmin(admin.ModelAdmin):
         if db_field.name in help_texts:
             formfield.help_text = help_texts[db_field.name]
         return formfield
-
+# Регистрация модели Booking в админ-панели
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
+    # Указываем поля для отображения в списке
     list_display = (
         'user', 'listing', 'start_date', 'end_date', 'status', 'created_at',
         'booking_number'
     )
-    list_display_links = ('user', 'listing')
-    list_filter = ('start_date', 'end_date', 'user', 'status')
-    search_fields = ('user__username', 'listing__title')
-    ordering = ('-created_at',)
-    readonly_fields = ('created_at',)
-
+    list_display_links = ('user', 'listing')# Поля для кликабельных ссылок
+    list_filter = ('start_date', 'end_date', 'user', 'status')# Фильтры
+    search_fields = ('user__username', 'listing__title')# Поля для поиска
+    ordering = ('-created_at',)# Сортировка по дате создания
+    readonly_fields = ('created_at',)# Поля только для чтения
+    # Действия для изменения статуса бронирования
     actions = ['approve_bookings', 'reject_bookings']
 
     def approve_bookings(self, request, queryset):
@@ -74,7 +84,7 @@ class BookingAdmin(admin.ModelAdmin):
         queryset.update(status='Rejected')
 
     reject_bookings.short_description = 'Reject selected bookings'
-
+    # Определяем структуру формы редактирования
     fieldsets = (
         (None, {
             'fields': ('user', 'listing', 'start_date', 'end_date', 'status', 'booking_number'),
@@ -87,6 +97,7 @@ class BookingAdmin(admin.ModelAdmin):
         }),
     )
 
+    # Настройка текстов подсказок для полей
     def formfield_for_dbfield(self, db_field, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, **kwargs)
         help_texts = {

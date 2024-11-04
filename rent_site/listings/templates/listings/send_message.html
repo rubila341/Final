@@ -1,163 +1,255 @@
-{% extends "base_generic.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with {{ recipient.username }}</title>
+    <style>
+        /* Все стили остаются без изменений */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
 
-{% block content %}
-  <div class="container mt-4">
-    <h1 class="mb-4">Chat with {{ recipient.username }}</h1>
+        header {
+            background-color: #222;
+            color: #fff;
+            padding: 15px 30px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
 
-    <!-- Display any success or error messages -->
-    {% if form.errors %}
-      <div class="alert alert-danger">
-        <ul>
-          {% for field in form %}
-            {% for error in field.errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          {% endfor %}
-          {% for error in form.non_field_errors %}
-            <li>{{ error }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% elif success %}
-      <div class="alert alert-success">
-        Your message has been sent successfully!
-      </div>
-    {% endif %}
+        .top-bar {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
 
-    <!-- Message History -->
-    <div class="message-history">
-      {% for message in messages %}
-        <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
-          <p class="message-content">{{ message.content }}</p>
-          {% if message.file %}
-            <a href="{{ message.file.url }}" class="message-file" target="_blank">View File</a>
-          {% endif %}
-          <p class="message-timestamp">{{ message.timestamp|date:"H:i" }}</p>
+        .top-bar a {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s, transform 0.3s;
+            font-size: 16px;
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+
+        .top-bar a:hover {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        main {
+            margin-top: 80px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 30px;
+        }
+
+        .message-history {
+            max-height: 450px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            position: relative;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .message:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .message.sent {
+            background-color: #e1f5fe;
+            text-align: right;
+            border-radius: 8px 8px 0 8px;
+        }
+
+        .message.received {
+            background-color: #f1f8e9;
+            text-align: left;
+            border-radius: 8px 8px 8px 0;
+        }
+
+        .message-content {
+            font-size: 1.1em;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .message-file {
+            display: block;
+            margin-top: 8px;
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: bold;
+        }
+
+        .message-file:hover {
+            color: #0056b3;
+        }
+
+        .message-timestamp {
+            font-size: 0.9em;
+            color: #888;
+            margin: 5px 0 0;
+        }
+
+        .message-form {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control {
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            transition: border-color 0.3s;
+            font-size: 1.1em;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        }
+
+        .btn {
+            width: 100%;
+            border-radius: 4px;
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 1.1em;
+            padding: 12px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
+        }
+
+        .no-messages {
+            font-style: italic;
+            color: #777;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'register' %}">Register</a>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'add_listing' %}">Add Listing</a>
+            <a href="{% url 'bookings' %}">My Bookings</a>
         </div>
-      {% empty %}
-        <p class="no-messages">No messages yet.</p>
-      {% endfor %}
-    </div>
+    </header>
 
-    <!-- Message Form -->
-    <form method="post" action="{% url 'chat_view' recipient_id=recipient.id %}" enctype="multipart/form-data" class="message-form mt-4">
-      {% csrf_token %}
-      <div class="form-group">
-        <textarea name="content" class="form-control" rows="3" placeholder="Type your message here..." required></textarea>
-      </div>
-      <div class="form-group">
-        <input type="file" name="file" class="form-control-file">
-      </div>
-      <button type="submit" class="btn btn-primary">Send Message</button>
-    </form>
-  </div>
+    <main>
+        <div class="container">
+            <h1>Chat with {{ recipient.username }}</h1>
 
-  <style>
-    .message-history {
-      max-height: 400px;
-      overflow-y: auto;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      background-color: #fff;
-      border-radius: 8px;
-      padding: 15px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% elif success %}
+                <div class="alert alert-success">
+                    Your message has been sent successfully!
+                </div>
+            {% endif %}
 
-    .message {
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-      position: relative;
-      transition: background-color 0.3s, transform 0.2s;
-    }
+            <div class="message-history">
+                {% for message in messages %}
+                    <div class="message {% if message.sender == request.user %}sent{% else %}received{% endif %}">
+                        <p class="message-content">{{ message.content }}</p>
+                        {% if message.file %}
+                            <a href="{{ message.file.url }}" class="message-file" target="_blank">View File</a>
+                        {% endif %}
+                        <p class="message-timestamp">{{ message.timestamp|date:"H:i" }}</p>
+                    </div>
+                {% empty %}
+                    <p class="no-messages">No messages yet.</p>
+                {% endfor %}
+            </div>
 
-    .message:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .message.sent {
-      background-color: #e1f5fe;
-      text-align: right;
-    }
-
-    .message.received {
-      background-color: #f1f8e9;
-      text-align: left;
-    }
-
-    .message-content {
-      margin: 0;
-      font-size: 1em;
-      line-height: 1.4;
-    }
-
-    .message-file {
-      display: block;
-      margin-top: 5px;
-      color: #007bff;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-
-    .message-file:hover {
-      color: #0056b3;
-    }
-
-    .message-timestamp {
-      font-size: 0.8em;
-      color: #888;
-      margin: 5px 0 0;
-    }
-
-    .message-form {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .form-control {
-      margin-bottom: 10px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-      transition: border-color 0.3s;
-    }
-
-    .form-control:focus {
-      border-color: #007bff;
-      box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
-    }
-
-    .form-control-file {
-      padding: 10px;
-    }
-
-    .btn {
-      width: 100%;
-      border-radius: 4px;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-
-    .btn-primary {
-      background-color: #007bff;
-      border: none;
-      color: #fff;
-      padding: 10px;
-    }
-
-    .btn-primary:hover {
-      background-color: #0056b3;
-      transform: scale(1.02);
-    }
-
-    .no-messages {
-      font-style: italic;
-      color: #777;
-      text-align: center;
-      padding: 20px;
-    }
-  </style>
-{% endblock %}
+            <form method="post" action="{% url 'chat_view' recipient_id=recipient.id %}" enctype="multipart/form-data" class="message-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <textarea name="content" class="form-control" rows="6" placeholder="Type your message here..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="file" name="file" class="form-control-file">
+                </div>
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
