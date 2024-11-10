@@ -12,6 +12,12 @@ from datetime import datetime
 
 from .forms import UserRegisterForm, ListingForm, RatingForm, MessageForm, ReviewForm, BookingForm
 from .models import Listing, Booking, Rating, City, User, Message, Chat, Review
+from django.shortcuts import render
+
+def home(request):
+    # Пример списка номеров изображений
+    image_numbers = list(range(1, 12))  # Список от 1 до 11
+    return render(request, 'home.html', {'image_numbers': image_numbers})
 
 # Политика конфиденциальности
 def privacy_policy(request):
@@ -173,6 +179,8 @@ def all_listings(request):
         try:
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            # Убедитесь, что в модели Listing есть поля для дат доступности
+            # если таких полей нет, этот блок нужно удалить или заменить
             listings = listings.filter(created_at__gte=start_date, created_at__lte=end_date)
         except ValueError:
             pass
@@ -345,10 +353,10 @@ def add_review(request, listing_id):
             review.listing = listing
             review.user = request.user
             review.save()
-            return redirect('listing_detail', id=listing_id)
+            return redirect('listing_detail', id=listing_id)  # Исправлен идентификатор на listing_id
     else:
         form = ReviewForm()
-    return render(request, 'listings/add_review.html', {'form': form})
+    return render(request, 'listings/add_review.html', {'form': form})  # Исправлен путь шаблона
 
 # Просмотр отзывов
 @login_required
@@ -369,7 +377,7 @@ def make_booking(request, listing_id):
             booking.user = request.user
             booking.status = 'pending'
             booking.save()
-            return redirect('bookings')
+            return redirect('profile')
     else:
         form = BookingForm()
     return render(request, 'listings/make_booking.html', {'form': form, 'listing': listing})

@@ -1,36 +1,31 @@
 from pathlib import Path
 
-# Построение путей внутри проекта, например: BASE_DIR / 'subdir'.
-# Erstellung von Pfaden innerhalb des Projekts, z. B. BASE_DIR / 'subdir'.
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-xhigpsi^68!yw#h@p3!d1=_(bt_%*j87i&+sogvhik4osu=^lc'  # Consider using environment variables for this in production
 
-SECRET_KEY = 'django-insecure-xhigpsi^68!yw#h@p3!d1=_(bt_%*j87i&+sogvhik4osu=^lc'
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
+# Define allowed hosts. For production, specify your domain or IP.
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Replace with your domain names or IP addresses for security
 
-DEBUG = True  # Установите False в продакшене !!!/ In der Produktion auf False setzen
-
-# Определите разрешённые хосты. Указать домен или IP на продакшене !!!.
-# Definieren Sie die erlaubten Hosts. Geben Sie die Domäne oder IP für die Produktion an.
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-
-# Определение установленных приложений.
-# Definition der installierten Anwendungen.
+# Application definition
 INSTALLED_APPS = [
-    'jet',  # Jet должен быть в начале для переопределения админки ( так как установил не стандартную админку / Jet sollte am Anfang sein, um das Admin-Panel zu überschreiben
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'listings',
-    'corsheaders',  # Добавление заголовков CORS для разрешения междоменных запросов/ Hinzufügen von CORS-Headern
+    'listings',  # Ensure your app is listed here
+    'corsheaders',  # Add CORS headers
 ]
 
-
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # Добавление CORS middleware / Hinzufügen von CORS-Middleware
+    'corsheaders.middleware.CorsMiddleware',  # Add CORS middleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -40,16 +35,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Основной конфигурационный файл URL
-# Haupt-URL-Konfigurationsdatei
 ROOT_URLCONF = 'rent_site.urls'
 
-# Шаблоны
-# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Каталог для шаблонов проекта / Verzeichnis für projektweite Templates
+        'DIRS': [BASE_DIR / 'templates'],  # Directory for project-wide templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -62,25 +53,21 @@ TEMPLATES = [
     },
 ]
 
-# Приложение WSGI делал в частности для настройки докера
-# WSGI-Anwendung
 WSGI_APPLICATION = 'rent_site.wsgi.application'
 
-# Конфигурация базы данных
-# Datenbankkonfiguration
+# Database configuration
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': '310524ptm_rubila341_final',  # Название базы данных / Name der Datenbank
-        'USER': 'ich1',  # Пользователь базы данных / Datenbank-Benutzer
-        'PASSWORD': 'ich1_password_ilovedbs',  # Пароль базы данных / Datenbank-Passwort
-        'HOST': 'mysql.itcareerhub.de',  # Хост базы данных / Datenbank-Host
-        'PORT': '3306',  # Порт базы данных / Datenbank-Port
+        'NAME': '310524ptm_rubila341_final',
+        'USER': 'ich1',
+        'PASSWORD': 'ich1_password_ilovedbs',
+        'HOST': 'mysql.itcareerhub.de',
+        'PORT': '3306',
     }
 }
 
-# Валидация паролей
-# Passwortvalidierung
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -96,59 +83,39 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Internationalization
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
 
-LANGUAGE_CODE = 'en-us'  # Язык по умолчанию / Standardsprache
-TIME_ZONE = 'UTC'  # Часовой пояс / Zeitzone
-USE_I18N = True  # Включить интернационализацию / Internationalisierung aktivieren
-USE_TZ = True  # Включить поддержку часовых поясов / Zeitzonenunterstützung aktivieren
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'  # Ensure the leading slash is present
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Directory for project-wide static files
 
-# Статические файлы (CSS, JavaScript, Изображения)
-# Statische Dateien (CSS, JavaScript, Bilder)
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Каталог для статических файлов / Verzeichnis für statische Dateien während der Entwicklung
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # Для продакшена  статика/ Für Produktion
-
-# Медиафайлы (Загруженные пользователями файлы)
-# Mediendateien (vom Benutzer hochgeladene Dateien)
+# Media files (Uploaded files)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Настройки для установки по умолчанию для первичных ключей
-# Standardmäßige Primärschlüssel-Einstellung
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# URL перенаправления после входа и выхода
-# Umleitungs-URLs nach dem Ein- und Ausloggen
-LOGIN_REDIRECT_URL = '/profile/'  # когда проходит логинрование, сделал проброс на профиль/ Umleitung nach erfolgreichem Login
-LOGOUT_REDIRECT_URL = '/'  # когда происходит логаут сделал перенаправление на главную / Umleitung nach dem Logout
+# Redirect URLs
+LOGIN_REDIRECT_URL = '/profile/'
+LOGOUT_REDIRECT_URL = '/'
 
-# Настройки CORS (разрешение запросов с разных доменов)
-# CORS-Einstellungen (Erlauben von Anfragen von verschiedenen Domänen)
-CORS_ALLOW_ALL_ORIGINS = True  # Разрешено для разработки
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True  # For development only; use CORS_ALLOWED_ORIGINS in production
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8000",
+#     "http://127.0.0.1:8000",
+# ]
 
-# Настройки cookie. делал попытки настройки https://
-# Cookie-Einstellungen
-SESSION_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SECURE = True  # Установите True, если используете HTTPS / Auf True setzen, wenn HTTPS verwendet wird
-CSRF_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SECURE = True  # Установите True, если используете HTTPS / Auf True setzen, wenn HTTPS verwendet wird
+# Cookie settings
+SESSION_COOKIE_SAMESITE = 'None'  # Adjust based on your needs
+SESSION_COOKIE_SECURE = True  # Set to True if you're using HTTPS
+CSRF_COOKIE_SAMESITE = 'None'  # Adjust as needed
+CSRF_COOKIE_SECURE = True  # Set to True if you're using HTTPS
 
-# URL для входа ( прописываю через какую ссылку проходит логирование)
-# Login-URL-Konfiguration
-LOGIN_URL = '/login/'
-
-# Конфигурация Django Jet (дополнительная настройка)
-# Django Jet-Konfiguration (optionale Anpassung)
-JET_THEMES = [
-    {
-        'theme': 'default',  # Настройка тем (поставил стандартную) / Themen anpassen
-        'color': '#47bac1',
-    },
-]
-
-# Дополнительные настройки безопасности для продакшена (тажа настройка https
-# Zusätzliche Sicherheitseinstellungen für die Produktion (empfohlen)
-if not DEBUG:
-    SESSION_COOKIE_SECURE = True  # Обеспечение безопасности куки сессий / Sitzungs-Cookies sichern
-    CSRF_COOKIE_SECURE = True  # Обеспечение безопасности CSRF куки / CSRF-Cookies sichern
-    SECURE_SSL_REDIRECT = True  # Перенаправление на HTTPS / Umleitung auf HTTPS
+# Login URL configuration
+LOGIN_URL = '/login/'  # URL where users will be redirected to log in

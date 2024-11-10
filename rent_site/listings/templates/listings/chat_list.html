@@ -6,78 +6,82 @@
     <title>Chat List</title>
     {% load static %}
     <style>
-        /* Основные стили */
         body {
             font-family: 'Roboto', sans-serif;
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            color: #444;
             margin: 0;
             padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
             overflow-x: hidden;
         }
 
         header {
             background-color: rgba(0, 0, 0, 0.8);
             color: #fff;
-            padding: 15px 20px;
+            padding: 10px 20px;
             position: fixed;
             width: 100%;
             top: 0;
             left: 0;
             z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .top-bar {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 20px; /* Уменьшено расстояние между ссылками */
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .top-bar a {
             color: #fff;
             text-decoration: none;
             font-weight: bold;
+            font-size: 16px; /* Уменьшен размер шрифта */
             transition: color 0.3s, transform 0.3s;
-            font-size: 16px;
-            position: relative;
+            padding: 8px 12px; /* Уменьшены внутренние отступы */
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .top-bar a:hover {
             color: #ffd700;
-            transform: scale(1.15);
-            text-shadow: 0 0 5px #ffd700;
+            background-color: rgba(0, 0, 0, 0.6);
+            transform: scale(1.05); /* Уменьшен эффект увеличения */
         }
 
         .container {
             max-width: 900px;
-            margin: 100px auto;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-            border: 1px solid #ddd;
-            animation: fadeIn 0.5s ease-in;
+            margin: 100px auto 20px; /* Увеличен верхний отступ */
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: calc(100% + 40px);
+            height: calc(100% + 40px);
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            z-index: -1;
+            transform: rotate(-3deg);
+            opacity: 0.15; /* Уменьшена прозрачность фона */
         }
 
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 30px;
-            font-size: 32px;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 2.2em; /* Уменьшен размер шрифта */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Уменьшена тень текста */
         }
 
         .chat-item {
@@ -94,7 +98,7 @@
 
         .chat-item:hover {
             background: #e9ecef;
-            transform: translateY(-3px);
+            transform: translateY(-1px); /* Уменьшен эффект поднятия */
         }
 
         .chat-item img {
@@ -109,7 +113,7 @@
 
         .chat-item img:hover {
             border-color: #0056b3;
-            transform: scale(1.05);
+            transform: scale(1.02); /* Уменьшен эффект увеличения */
         }
 
         .chat-item .info {
@@ -142,7 +146,7 @@
             text-decoration: none;
             font-weight: bold;
             font-size: 14px;
-            transition: color 0.3s, text-decoration 0.3s;
+            transition: color 0.3s;
         }
 
         .chat-item .view-chat:hover {
@@ -161,40 +165,21 @@
             margin: 10px 0;
         }
 
-        .save-button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .save-button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-        }
-
         /* Адаптивные стили */
         @media (max-width: 768px) {
             .top-bar {
-                gap: 10px;
+                gap: 10px; /* Уменьшено расстояние между ссылками */
                 flex-direction: column;
                 align-items: flex-start;
             }
 
             .top-bar a {
-                font-size: 14px;
-                padding: 6px 10px;
+                font-size: 14px; /* Уменьшен размер шрифта */
+                padding: 6px 10px; /* Уменьшены внутренние отступы */
             }
 
             .container {
-                margin-top: 120px;
+                margin-top: 120px; /* Увеличен верхний отступ */
             }
         }
     </style>
@@ -202,12 +187,16 @@
 <body>
     <header>
         <div class="top-bar">
-            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'home' %}">Home</a> <!-- Добавленная кнопка Home -->
             <a href="{% url 'all_listings' %}">View All Listings</a>
+            <a href="{% url 'register' %}">Register</a>
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'add_listing' %}">Add Listing</a>
+            <a href="{% url 'bookings' %}">My Bookings</a>
+            <a href="{% url 'chat_list' %}">Chat</a> <!-- Добавленная кнопка Chat -->
             {% if user.is_authenticated %}
                 <a href="{% url 'profile' %}">Profile</a>
+                <!-- Форма для выхода -->
                 <form action="{% url 'logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit" style="background-color: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 25px; font-size: 16px; cursor: pointer; transition: background-color 0.3s, transform 0.2s; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);">Logout</button>
@@ -235,8 +224,6 @@
         {% else %}
             <p>No chats available.</p>
         {% endif %}
-
-
     </div>
 
     <div class="footer">

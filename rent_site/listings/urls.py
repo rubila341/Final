@@ -1,17 +1,10 @@
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path, include
-from django.contrib import admin
+from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-    # Пути для Django Jet
-    path('jet/', include('jet.urls', 'jet')),
-
-    # Админка Django
-    path('admin/', admin.site.urls),
-
     # Основные пути
     path('', views.home, name='home'),
     path('register/', views.register, name='register'),
@@ -36,6 +29,7 @@ urlpatterns = [
     # Пути для бронирования
     path('listing/<int:listing_id>/book/', views.make_booking, name='make_booking'),
     path('booking/<int:booking_id>/manage/', views.manage_booking, name='manage_booking'),
+
 
     # Пути для чатов
     path('chat/', views.chat_list, name='chat_list'),

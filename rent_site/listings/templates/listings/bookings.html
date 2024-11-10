@@ -1,186 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Bookings</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'styles.css' %}"> <!-- Подключение стилей -->
-    <style>
-        /* Основные стили для страницы бронирования */
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(to right, #6a11cb, #2575fc); /* Новый градиентный фон */
-            color: #444;
-            margin: 0;
-            padding: 0;
-        }
+{% extends "base.html" %}
 
-        header {
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 15px 20px;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
+{% block title %}All Listings{% endblock %}
 
-        .top-bar {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .top-bar a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s, transform 0.3s;
-            font-size: 16px;
-            position: relative;
-        }
-
-        .top-bar a:hover {
-            color: #ffd700;
-            transform: scale(1.15);
-            text-shadow: 0 0 5px #ffd700;
-        }
-
-        main {
-            margin-top: 80px; /* Отступ для фиксированного заголовка */
-            padding: 20px;
-        }
-
-        section {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 32px;
-            font-weight: bold;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        li {
-            position: relative;
-            background-color: #fff;
-            margin-bottom: 15px; /* Отступ между объявлениями */
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            overflow: hidden; /* Обрезаем содержимое */
-        }
-
-        li::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -15px;
-            bottom: 0;
-            width: 10px;
-            background-color: #007bff; /* Синяя полоса слева */
-            border-radius: 10px 0 0 10px;
-        }
-
-        li::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: -15px;
-            bottom: 0;
-            width: 10px;
-            background-color: #007bff; /* Синяя полоса справа */
-            border-radius: 0 10px 10px 0;
-        }
-
-        li:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        h2 {
-            margin: 0;
-            font-size: 24px; /* Увеличен размер заголовка объявления */
-            color: #333;
-        }
-
-        p {
-            color: #555;
-            margin: 5px 0;
-        }
-
-        .status {
-            font-weight: bold;
-            padding: 5px;
-            border-radius: 5px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .status.pending {
-            background-color: #ffeb3b; /* Желтый для ожидающих */
-            color: #333;
-        }
-
-        .status.confirmed {
-            background-color: #4caf50; /* Зеленый для подтвержденных */
-            color: #fff;
-        }
-
-        .status.declined {
-            background-color: #f44336; /* Красный для отказанных */
-            color: #fff;
-        }
-
-        .images {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .image-container {
-            flex: 1 1 calc(33% - 10px); /* Три изображения в ряд */
-            max-width: calc(33% - 10px);
-        }
-
-        .image-container img {
-            width: 100%;
-            border-radius: 10px;
-        }
-
-        .no-listings {
-            text-align: center;
-            color: #999;
-            font-size: 18px;
-            margin: 20px 0;
-        }
-    </style>
-</head>
-<body>
+{% block content %}
     <header>
         <div class="top-bar">
             <a href="{% url 'home' %}">Home</a>
@@ -188,38 +10,24 @@
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'add_listing' %}">Add Listing</a>
             <a href="{% url 'bookings' %}">My Bookings</a>
-            <a href="{% url 'profile' %}">Profile</a>
-            <form action="{% url 'logout' %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" style="background: none; border: none; color: #fff; cursor: pointer;">Logout</button>
-            </form>
         </div>
     </header>
 
     <main>
         <section>
-            <h1>My Bookings</h1>
+            <h1>All Listings</h1>
             <ul>
-                {% for booking in bookings %}
+                {% for listing in listings %}
                     <li>
-                        <h2>{{ booking.listing.title }}</h2>
-                        <p>{{ booking.listing.description }}</p>
-                        <p>Location: {{ booking.listing.location }}</p>
-                        <p>Price: ${{ booking.listing.price }}</p>
-                        <span class="status {{ booking.status }}">{{ booking.status|capfirst }}</span>
-                        <div class="images">
-                            {% for image in booking.listing.images.all %} {# Предполагается, что у вас есть связь многие-ко-многим для изображений #}
-                                <div class="image-container">
-                                    <img src="{{ image.url }}" alt="Image of {{ booking.listing.title }}">
-                                </div>
-                            {% endfor %}
-                        </div>
+                        <h2>{{ listing.title }}</h2>
+                        <p>{{ listing.description }}</p>
+                        <p>Location: {{ listing.location }}</p>
+                        <p>Price: {{ listing.price }}</p>
                     </li>
                 {% empty %}
-                    <li class="no-listings">No bookings available.</li>
+                    <li>No listings available.</li>
                 {% endfor %}
             </ul>
         </section>
     </main>
-</body>
-</html>
+{% endblock %}

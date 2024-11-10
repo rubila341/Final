@@ -210,7 +210,6 @@
             {% if user.is_authenticated %}
                 <a href="{% url 'profile' %}">Profile</a> <!-- Добавлена ссылка на профиль -->
                 <a href="{% url 'add_listing' %}">Add Listing</a>
-                <a href="{% url 'booking' %}">Booking</a>
                 <a href="{% url 'logout' %}">Logout</a>
             {% else %}
                 <a href="{% url 'login' %}">Login</a>

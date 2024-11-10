@@ -54,7 +54,6 @@
             background: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
         }
 
         h1 {
@@ -79,13 +78,6 @@
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             background-color: #fff;
-            position: relative;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        li:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         h2 {
@@ -97,22 +89,6 @@
         p {
             margin: 5px 0;
             color: #666;
-        }
-
-        .listing-img {
-            max-width: 100%;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-
-        .listing-meta {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 10px;
-        }
-
-        .listing-meta span {
-            margin-right: 10px;
         }
 
         nav {
@@ -141,35 +117,11 @@
             margin: 5px;
             font-size: 16px;
         }
-
-        .filter-form input[type="text"] {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .filter-form select {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-        }
-
-        .filter-form button {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .filter-form button:hover {
-            background-color: #0056b3;
-        }
     </style>
 </head>
 <body>
     <header>
         <div class="top-bar">
-            <a href="{% url 'home' %}">Home</a>
             <a href="{% url 'register' %}">Register</a>
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'add_listing' %}">Add Listing</a>
@@ -179,28 +131,34 @@
 
     <main>
         <section>
-            <h1>Search Results</h1>
+            <h1>Search Results for "{{ query }}"</h1>
+
+            <!-- Форма фильтрации -->
+            <div class="filter-form">
+                <form method="get" action="{% url 'search_listings' %}">
+                    <input type="text" name="q" value="{{ query }}" placeholder="Search listings">
+                    <select name="location">
+                        <option value="">All Cities</option>
+                        {% for city in cities %}
+                            <option value="{{ city.id }}" {% if city.id|stringformat:"s" == location %}selected{% endif %}>{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Search</button>
+                </form>
+            </div>
 
             {% if listings %}
                 <ul>
                     {% for listing in listings %}
                         <li>
-                            {% if listing.image %}
-                                <img src="{{ listing.image.url }}" alt="{{ listing.title }}" class="listing-img">
-                            {% endif %}
                             <h2>{{ listing.title }}</h2>
-                            <div class="listing-meta">
-                                <span><strong>Price:</strong> ${{ listing.price }}</span>
-                                <span><strong>Date:</strong> {{ listing.date_posted }}</span>
-                                <span><strong>Posted by:</strong> {{ listing.user.username }}</span>
-                            </div>
                             <p>{{ listing.description }}</p>
                             <p><strong>Location:</strong> {{ listing.location.name }}</p>
                         </li>
                     {% endfor %}
                 </ul>
             {% else %}
-                <p>No listings found</p>
+                <p>No listings found for "{{ query }}"</p>
             {% endif %}
         </section>
 
