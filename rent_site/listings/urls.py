@@ -1,10 +1,41 @@
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import path, include
+from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from rest_framework.routers import DefaultRouter
 from . import views
+from .api_views import (
+    CityViewSet,
+    ListingViewSet,
+    BookingViewSet,
+    ReviewViewSet,
+    RatingViewSet,
+    ChatViewSet,
+    MessageViewSet,
+    UserActivityViewSet,
+    DiscountViewSet
+)
+
+# Создаем маршрутизатор и регистрируем API маршруты для каждой модели
+router = DefaultRouter()
+router.register(r'cities', CityViewSet)
+router.register(r'listings', ListingViewSet)
+router.register(r'bookings', BookingViewSet)
+router.register(r'reviews', ReviewViewSet)
+router.register(r'ratings', RatingViewSet)
+router.register(r'chats', ChatViewSet)
+router.register(r'messages', MessageViewSet)
+router.register(r'user-activities', UserActivityViewSet)
+router.register(r'discounts', DiscountViewSet)
 
 urlpatterns = [
+    # Пути для Django Jet
+    path('jet/', include('jet.urls', 'jet')),
+
+    # Админка Django
+    path('admin/', admin.site.urls),
+
     # Основные пути
     path('', views.home, name='home'),
     path('register/', views.register, name='register'),
@@ -30,7 +61,6 @@ urlpatterns = [
     path('listing/<int:listing_id>/book/', views.make_booking, name='make_booking'),
     path('booking/<int:booking_id>/manage/', views.manage_booking, name='manage_booking'),
 
-
     # Пути для чатов
     path('chat/', views.chat_list, name='chat_list'),
     path('chat/<int:recipient_id>/', views.chat_view, name='chat_view'),
@@ -38,6 +68,9 @@ urlpatterns = [
 
     # Путь для редактирования объявления
     path('edit_listing/<int:id>/', views.edit_listing, name='edit_listing'),
+
+    # Пути для API
+    path('api/', include(router.urls)),  # Добавление всех API маршрутов из router
 ]
 
 # Serve media files during development

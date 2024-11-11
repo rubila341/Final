@@ -10,32 +10,27 @@ from django.conf import settings
 from django.db.models import Q
 from datetime import datetime
 
+# Импортируем формы и модели, используемые в проекте
 from .forms import UserRegisterForm, ListingForm, RatingForm, MessageForm, ReviewForm, BookingForm
-from .models import Listing, Booking, Rating, City, User, Message, Chat, Review
-from django.shortcuts import render
+from .models import Listing, Booking, Rating, City, User, Message, Chat, Review, Discount
 
-def home(request):
-    # Пример списка номеров изображений
-    image_numbers = list(range(1, 12))  # Список от 1 до 11
-    return render(request, 'home.html', {'image_numbers': image_numbers})
-
-# Политика конфиденциальности
+# Политика конфиденциальности - простая страница с текстом политики
 def privacy_policy(request):
     return render(request, 'listings/privacy_policy.html')
 
-# Домашняя страница
+# Домашняя страница - отображает все города для фильтрации объявлений
 def home(request):
-    cities = City.objects.values('name').distinct()
+    cities = City.objects.values('name').distinct()  # Получаем список городов
     return render(request, 'listings/index.html', {'cities': cities})
 
 # Регистрация пользователя
 def register(request):
     if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
+        form = UserRegisterForm(request.POST)  # Создаем форму регистрации
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('profile')
+            user = form.save()  # Сохраняем нового пользователя
+            login(request, user)  # Логиним пользователя сразу после регистрации
+            return redirect('profile')  # Перенаправляем на профиль
     else:
         form = UserRegisterForm()
     return render(request, 'listings/register.html', {'form': form})
@@ -58,10 +53,10 @@ def add_listing(request):
     if request.method == 'POST':
         form = ListingForm(request.POST, request.FILES)
         if form.is_valid():
-            listing = form.save(commit=False)
+            listing = form.save(commit=False)  # Не сохраняем, пока не добавим владельца
             listing.owner = request.user
-            listing.save()
-            return redirect('home')
+            listing.save()  # Теперь сохраняем
+            return redirect('home')  # Перенаправляем на главную страницу
     else:
         form = ListingForm()
     return render(request, 'listings/add_listing.html', {'form': form})
@@ -69,8 +64,7 @@ def add_listing(request):
 # Редактирование объявления
 @login_required
 def edit_listing(request, id):
-    listing = get_object_or_404(Listing, id=id, owner=request.user)
-
+    listing = get_object_or_404(Listing, id=id, owner=request.user)  # Проверка, что объявление принадлежит пользователю
     if request.method == 'POST':
         form = ListingForm(request.POST, request.FILES, instance=listing)
         if form.is_valid():
@@ -78,19 +72,18 @@ def edit_listing(request, id):
             return redirect('profile')
     else:
         form = ListingForm(instance=listing)
-
     return render(request, 'listings/edit_listing.html', {'form': form, 'listing': listing})
 
-# Поиск объявлений
+# Поиск объявлений по заголовку
 def search_listings(request):
-    query = request.GET.get('q', '')
+    query = request.GET.get('q', '')  # Получаем поисковый запрос
     listings = Listing.objects.filter(title__icontains=query) if query else Listing.objects.all()
     return render(request, 'listings/search_listings.html', {'listings': listings, 'query': query})
 
 # Отображение объявлений в конкретном городе
 def city_listings(request, city):
     city_object = get_object_or_404(City, name=city)
-    listings = Listing.objects.filter(location=city_object)
+    listings = Listing.objects.filter(location=city_object)  # Фильтр по выбранному городу
     return render(request, 'listings/city_listings.html', {'listings': listings, 'city': city})
 
 # Просмотр бронирований пользователя
@@ -103,12 +96,12 @@ def bookings(request):
 @login_required
 def profile(request):
     user_listings = Listing.objects.filter(owner=request.user)
-
     if request.method == 'POST':
         action = request.POST.get('action')
         listing_id = request.POST.get('listing_id')
         if action and listing_id:
             listing = get_object_or_404(Listing, id=listing_id, owner=request.user)
+            # Обработка действий: активация, деактивация или удаление
             if action == 'activate':
                 listing.is_active = True
             elif action == 'deactivate':
@@ -119,7 +112,6 @@ def profile(request):
                 return HttpResponseNotAllowed(['POST'])
             listing.save()
             return redirect('profile')
-
     return render(request, 'listings/profile.html', {'listings': user_listings})
 
 # Смена пароля пользователя
@@ -129,7 +121,7 @@ def change_password(request):
         form = PasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
             user = form.save()
-            update_session_auth_hash(request, user)
+            update_session_auth_hash(request, user)  # Сессия остается активной после смены пароля
             return redirect('profile')
     else:
         form = PasswordChangeForm(user=request.user)
@@ -143,8 +135,9 @@ def logout(request):
         return redirect('home')
     return HttpResponseNotAllowed(['POST'])
 
-# Просмотр всех объявлений с пагинацией и сортировкой
+# Просмотр всех объявлений с возможностью фильтрации и сортировки
 def all_listings(request):
+    # Параметры пагинации, фильтрации и сортировки из GET-запроса
     page_number = request.GET.get('page', 1)
     items_per_page = int(request.GET.get('items_per_page', 5))
     sort_by = request.GET.get('sort_by', 'created_at')
@@ -154,16 +147,15 @@ def all_listings(request):
     start_date = request.GET.get('start_date', '')
     end_date = request.GET.get('end_date', '')
 
+    # Проверяем валидность поля сортировки
     valid_sort_fields = ['created_at', 'title', 'price', 'rating']
     if sort_by not in valid_sort_fields:
         sort_by = 'created_at'
 
-    # Получаем все города для фильтрации
     cities = City.objects.all()
-
-    # Фильтруем объявления по выбранному городу и ценовому диапазону
     listings = Listing.objects.filter(is_active=True)
 
+    # Фильтрация по городам, цене и дате
     if location:
         city_object = get_object_or_404(City, id=location)
         listings = listings.filter(location=city_object)
@@ -174,13 +166,10 @@ def all_listings(request):
     if max_price:
         listings = listings.filter(price__lte=max_price)
 
-    # Фильтрация по датам
     if start_date and end_date:
         try:
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-            # Убедитесь, что в модели Listing есть поля для дат доступности
-            # если таких полей нет, этот блок нужно удалить или заменить
             listings = listings.filter(created_at__gte=start_date, created_at__lte=end_date)
         except ValueError:
             pass
@@ -206,6 +195,15 @@ def all_listings(request):
 def listing_detail(request, id):
     listing = get_object_or_404(Listing, id=id)
     user_rating = None
+    discount_percentage = 0
+    discounted_price = listing.price
+
+    # Проверка наличия активной скидки и вычисление итоговой цены
+    active_discount = Discount.objects.filter(listing=listing, is_active=True, start_date__lte=datetime.now().date()).first()
+    if active_discount:
+        discount_percentage = active_discount.amount
+        discounted_price = listing.price - (listing.price * discount_percentage / 100)
+
     if request.user.is_authenticated:
         user_rating = Rating.objects.filter(listing=listing, user=request.user).first()
 
@@ -220,7 +218,7 @@ def listing_detail(request, id):
                 rating, created = Rating.objects.get_or_create(listing=listing, user=request.user)
                 rating.rating = rating_value
                 rating.save()
-                listing.update_rating()  # Убедитесь, что этот метод существует
+                listing.update_rating()
                 return redirect('listing_detail', id=id)
         elif 'message_submit' in request.POST:
             message_form = MessageForm(request.POST, request.FILES)
@@ -236,7 +234,9 @@ def listing_detail(request, id):
         'listing': listing,
         'rating_form': rating_form,
         'message_form': message_form,
-        'user_rating': user_rating.rating if user_rating else None
+        'user_rating': user_rating.rating if user_rating else None,
+        'discounted_price': discounted_price,
+        'discount_percentage': discount_percentage
     })
 
 # Оценка объявления
@@ -250,12 +250,12 @@ def rate_listing(request, id):
             rating, created = Rating.objects.get_or_create(listing=listing, user=request.user)
             rating.rating = rating_value
             rating.save()
-            listing.update_rating()  # Убедитесь, что этот метод существует
+            listing.update_rating()
             return JsonResponse({'success': True, 'new_rating': listing.rating})
         return JsonResponse({'success': False, 'errors': form.errors}, status=400)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
 
-# Представление для страницы контактов
+# Страница контактов
 def contact(request):
     if request.method == 'POST':
         form = MessageForm(request.POST)
@@ -293,11 +293,8 @@ def send_message(request, recipient_id):
 # Представление для списка чатов
 @login_required
 def chat_list(request):
-    # Получаем список уникальных чатов для пользователя
     sent_chats = Message.objects.filter(sender=request.user).values('receiver').distinct()
     received_chats = Message.objects.filter(receiver=request.user).values('sender').distinct()
-
-    # Объединяем оба списка и убираем дубликаты
     all_chats = list(sent_chats) + list(received_chats)
     unique_chats = set(chat['receiver'] if 'receiver' in chat else chat['sender'] for chat in all_chats)
 
@@ -321,7 +318,6 @@ def chat_list(request):
 def chat_view(request, recipient_id):
     recipient = get_object_or_404(User, id=recipient_id)
     chat, created = Chat.objects.get_or_create(participants__in=[request.user, recipient])
-
     messages = Message.objects.filter(chat=chat).order_by('sent_at')
 
     if request.method == 'POST':
@@ -353,10 +349,10 @@ def add_review(request, listing_id):
             review.listing = listing
             review.user = request.user
             review.save()
-            return redirect('listing_detail', id=listing_id)  # Исправлен идентификатор на listing_id
+            return redirect('all_listings')
     else:
         form = ReviewForm()
-    return render(request, 'listings/add_review.html', {'form': form})  # Исправлен путь шаблона
+    return render(request, 'listings/add_review.html', {'form': form})
 
 # Просмотр отзывов
 @login_required
@@ -376,8 +372,12 @@ def make_booking(request, listing_id):
             booking.listing = listing
             booking.user = request.user
             booking.status = 'pending'
+            active_discount = Discount.objects.filter(listing=listing, is_active=True, start_date__lte=datetime.now().date()).first()
+            if active_discount:
+                discount_percentage = active_discount.amount
+                booking.discounted_price = listing.price - (listing.price * discount_percentage / 100)
             booking.save()
-            return redirect('profile')
+            return redirect('bookings')
     else:
         form = BookingForm()
     return render(request, 'listings/make_booking.html', {'form': form, 'listing': listing})

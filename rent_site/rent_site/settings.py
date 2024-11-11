@@ -1,31 +1,92 @@
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Построение путей внутри проекта, например: BASE_DIR / 'subdir'.
+# Erstellung von Pfaden innerhalb des Projekts, z. B. BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-xhigpsi^68!yw#h@p3!d1=_(bt_%*j87i&+sogvhik4osu=^lc'  # Consider using environment variables for this in production
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = 'django-insecure-xhigpsi^68!yw#h@p3!d1=_(bt_%*j87i&+sogvhik4osu=^lc'
 
-# Define allowed hosts. For production, specify your domain or IP.
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Replace with your domain names or IP addresses for security
 
-# Application definition
+DEBUG = True  # Установите False в продакшене !!!/ In der Produktion auf False setzen
+
+# Определите разрешённые хосты. Указать домен или IP на продакшене !!!.
+# Definieren Sie die erlaubten Hosts. Geben Sie die Domäne oder IP für die Produktion an.
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+# Определение установленных приложений.
+# Definition der installierten Anwendungen.
 INSTALLED_APPS = [
+    'jet',  # Jet должен быть в начале для переопределения админки ( так как установил не стандартную админку / Jet sollte am Anfang sein, um das Admin-Panel zu überschreiben
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'listings',  # Ensure your app is listed here
-    'corsheaders',  # Add CORS headers
+    'rest_framework',
+    'drf_yasg',
+    'listings',
+    'django_filters',
+    'corsheaders',  # Добавление заголовков CORS для разрешения междоменных запросов/ Hinzufügen von CORS-Headern
 ]
 
+REST_FRAMEWORK = {
+    # Аутентификация сессий и базовая аутентификация
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',  # Добавлено для использования токенов
+    ],
+
+    # Авторизация: по умолчанию требуется аутентификация, но можно расширять в `views` для конкретных функций
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+
+    # Пагинация: настраиваемая пагинация с фиксированным количеством объектов на странице
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+
+    # Поиск, сортировка и фильтрация:
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',  # Фильтрация данных
+        'rest_framework.filters.OrderingFilter',  # Сортировка
+        'rest_framework.filters.SearchFilter',  # Поиск
+    ],
+    'ORDERING_PARAM': 'ordering',  # для сортировки ?ordering=поле
+    'SEARCH_PARAM': 'search',  # для поиска ?search=запрос
+    'FILTER_FIELDS': {  # поля для фильтрации
+        'Listing': ['location', 'price', 'property_type', 'rooms'],
+        'Booking': ['status', 'start_date', 'end_date'],
+        'Review': ['rating'],
+    },
+
+    # Обработка ошибок: коды статусов и поддержка ответов в виде JSON
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
+
+    # Форматирование и поддержка API-интерфейсов JSON только для API конечных точек
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',  # JSON формат по умолчанию
+        'rest_framework.renderers.BrowsableAPIRenderer',  # Включаем для удобного просмотра API в браузере
+    ],
+
+    # Поддержка кэширования для улучшения производительности
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',  # Ограничения для анонимных пользователей
+        'rest_framework.throttling.UserRateThrottle',  # Ограничения для аутентифицированных
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/minute',  # для неавторизованных: 10 запросов в минуту
+        'user': '100/minute',  # для авторизованных: 100 запросов в минуту
+    },
+
+    # Поддержка версионирования API
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
+}
+
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # Add CORS middleware
+    'corsheaders.middleware.CorsMiddleware',  # Добавление CORS middleware / Hinzufügen von CORS-Middleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -35,12 +96,16 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Основной конфигурационный файл URL
+# Haupt-URL-Konfigurationsdatei
 ROOT_URLCONF = 'rent_site.urls'
 
+# Шаблоны
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Directory for project-wide templates
+        'DIRS': [BASE_DIR / 'templates'],  # Каталог для шаблонов проекта / Verzeichnis für projektweite Templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -53,21 +118,25 @@ TEMPLATES = [
     },
 ]
 
+# Приложение WSGI делал в частности для настройки докера
+# WSGI-Anwendung
 WSGI_APPLICATION = 'rent_site.wsgi.application'
 
-# Database configuration
+# Конфигурация базы данных
+# Datenbankkonfiguration
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': '310524ptm_rubila341_final',
-        'USER': 'ich1',
-        'PASSWORD': 'ich1_password_ilovedbs',
-        'HOST': 'mysql.itcareerhub.de',
-        'PORT': '3306',
+        'NAME': '310524ptm_rubila341_final',  # Название базы данных / Name der Datenbank
+        'USER': 'ich1',  # Пользователь базы данных / Datenbank-Benutzer
+        'PASSWORD': 'ich1_password_ilovedbs',  # Пароль базы данных / Datenbank-Passwort
+        'HOST': 'mysql.itcareerhub.de',  # Хост базы данных / Datenbank-Host
+        'PORT': '3306',  # Порт базы данных / Datenbank-Port
     }
 }
 
-# Password validation
+# Валидация паролей
+# Passwortvalidierung
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -83,39 +152,59 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'  # Ensure the leading slash is present
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Directory for project-wide static files
+LANGUAGE_CODE = 'en-us'  # Язык по умолчанию / Standardsprache
+TIME_ZONE = 'UTC'  # Часовой пояс / Zeitzone
+USE_I18N = True  # Включить интернационализацию / Internationalisierung aktivieren
+USE_TZ = True  # Включить поддержку часовых поясов / Zeitzonenunterstützung aktivieren
 
-# Media files (Uploaded files)
+# Статические файлы (CSS, JavaScript, Изображения)
+# Statische Dateien (CSS, JavaScript, Bilder)
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Каталог для статических файлов / Verzeichnis für statische Dateien während der Entwicklung
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Для продакшена  статика/ Für Produktion
+
+# Медиафайлы (Загруженные пользователями файлы)
+# Mediendateien (vom Benutzer hochgeladene Dateien)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Default primary key field type
+# Настройки для установки по умолчанию для первичных ключей
+# Standardmäßige Primärschlüssel-Einstellung
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Redirect URLs
-LOGIN_REDIRECT_URL = '/profile/'
-LOGOUT_REDIRECT_URL = '/'
+# URL перенаправления после входа и выхода
+# Umleitungs-URLs nach dem Ein- und Ausloggen
+LOGIN_REDIRECT_URL = '/profile/'  # когда проходит логинрование, сделал проброс на профиль/ Umleitung nach erfolgreichem Login
+LOGOUT_REDIRECT_URL = '/'  # когда происходит логаут сделал перенаправление на главную / Umleitung nach dem Logout
 
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = True  # For development only; use CORS_ALLOWED_ORIGINS in production
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:8000",
-#     "http://127.0.0.1:8000",
-# ]
+# Настройки CORS (разрешение запросов с разных доменов)
+# CORS-Einstellungen (Erlauben von Anfragen von verschiedenen Domänen)
+CORS_ALLOW_ALL_ORIGINS = True  # Разрешено для разработки
 
-# Cookie settings
-SESSION_COOKIE_SAMESITE = 'None'  # Adjust based on your needs
-SESSION_COOKIE_SECURE = True  # Set to True if you're using HTTPS
-CSRF_COOKIE_SAMESITE = 'None'  # Adjust as needed
-CSRF_COOKIE_SECURE = True  # Set to True if you're using HTTPS
+# Настройки cookie. делал попытки настройки https://
+# Cookie-Einstellungen
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True  # Установите True, если используете HTTPS / Auf True setzen, wenn HTTPS verwendet wird
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True  # Установите True, если используете HTTPS / Auf True setzen, wenn HTTPS verwendet wird
 
-# Login URL configuration
-LOGIN_URL = '/login/'  # URL where users will be redirected to log in
+# URL для входа ( прописываю через какую ссылку проходит логирование)
+# Login-URL-Konfiguration
+LOGIN_URL = '/login/'
+
+# Конфигурация Django Jet (дополнительная настройка)
+# Django Jet-Konfiguration (optionale Anpassung)
+JET_THEMES = [
+    {
+        'theme': 'default',  # Настройка тем (поставил стандартную) / Themen anpassen
+        'color': '#47bac1',
+    },
+]
+
+# Дополнительные настройки безопасности для продакшена (тажа настройка https
+# Zusätzliche Sicherheitseinstellungen für die Produktion (empfohlen)
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True  # Обеспечение безопасности куки сессий / Sitzungs-Cookies sichern
+    CSRF_COOKIE_SECURE = True  # Обеспечение безопасности CSRF куки / CSRF-Cookies sichern
+    SECURE_SSL_REDIRECT = True  # Перенаправление на HTTPS / Umleitung auf HTTPS
